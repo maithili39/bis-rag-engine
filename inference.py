@@ -94,17 +94,20 @@ def run_inference(input_path: str, output_path: str) -> None:
             print(f"  [{idx}/{num_queries}] {query_id}: {query[:50]}...")
             
             # Process through pipeline
-            retrieved_codes, latency = pipeline.process_query(query, top_k=5)
+            retrieved_codes, rationale, latency = pipeline.process_query(query, top_k=5)
             total_time += latency
             
             # Build result entry matching eval_script.py expected format
             result = {
                 "id": query_id,
                 "query": query,
-                "expected_standards": expected,
                 "retrieved_standards": retrieved_codes,
+                "rationale": rationale,
                 "latency_seconds": round(latency, 2)
             }
+            # Only include expected_standards if present in the input (for eval_script scoring)
+            if expected:
+                result["expected_standards"] = expected
             results.append(result)
         
         # Save results

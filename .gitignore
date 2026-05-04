@@ -39,16 +39,17 @@ env/
 .env
 .env.local
 
-# Data
+# Data (exclude raw/processed intermediates only)
 data/raw/
 data/processed/
 embeddings/
 models/
 chromadb/
-known_codes.json
+# NOTE: known_codes.json is intentionally committed
 
-# Results
-results/
+# Local results (not committed)
+results.json
+team_results.json
 outputs/
 
 # OS

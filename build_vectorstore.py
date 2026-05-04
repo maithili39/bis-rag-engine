@@ -68,7 +68,7 @@ def main():
         "Portland slag cement",
     ]
     for q in test_queries:
-        codes, latency = pipeline.process_query(q)
+        codes, rationale, latency = pipeline.process_query(q)
         print(f"  Q: {q}")
         print(f"  -> {codes[:3]} ({latency:.2f}s)\n")
 

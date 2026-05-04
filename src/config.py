@@ -5,8 +5,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# Disable ChromaDB anonymous telemetry (suppresses posthog capture() warnings)
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+
 # Embedding Configuration (FREE - no API key needed)
-EMBEDDING_MODEL = "all-mpnet-base-v2"  # HuggingFace sentence-transformers (free, local, optimized for retrieval)
+EMBEDDING_MODEL = "all-mpnet-base-v2"  # HuggingFace sentence-transformers (768-dim, optimized for information retrieval)
 
 # Optional: OpenAI for LLM-enhanced reranking (ONLY used in web UI, NOT in hackathon evaluation)
 # The system works perfectly fine without this - it falls back to intelligent rule-based reranking
@@ -18,7 +21,7 @@ LLM_MODEL = "gpt-3.5-turbo"
 # RAG Configuration
 CHUNK_SIZE = 1000       # Optimized chunk size for technical documents
 CHUNK_OVERLAP = 250     # Increased overlap for better context preservation at boundaries
-TOP_K_RETRIEVAL = 20    # Retrieve more candidates for better recall
+TOP_K_RETRIEVAL = 12    # Reduced from 20 — enough candidates for top-5 output with less overhead
 TOP_K_RESULTS = 5       # Return top 5 standards
 
 # Database Configuration
@@ -44,5 +47,5 @@ EVAL_HIT_RATE_K = 3
 EVAL_MRR_K = 5
 
 # Hybrid Search Weights (Semantic + BM25)
-SEMANTIC_WEIGHT = 0.5   # 50% semantic similarity (word embedding-based)
-BM25_WEIGHT = 0.5       # 50% keyword matching (statistical ranking)
+SEMANTIC_WEIGHT = 0.4   # Semantic embeddings for overall standard relevance
+BM25_WEIGHT = 0.6       # BM25 keyword matching is critical for technical terminology (codes, standards)

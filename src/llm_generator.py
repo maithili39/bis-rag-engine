@@ -162,6 +162,54 @@ class RecommendationGenerator:
         latency = time.time() - start_time
         return top_codes, latency
 
+    def generate_rationale(self, query: str, codes: List[str]) -> str:
+        """Generate a brief rationale explaining why these standards were recommended."""
+        if not codes:
+            return "No relevant BIS standards could be identified for this product description."
+
+        # Use LLM if available for a high-quality rationale
+        if self.llm:
+            try:
+                return self._llm_generate_rationale(query, codes)
+            except Exception as e:
+                print(f"  Warning: LLM rationale generation failed, using fallback: {e}")
+
+        return self._fallback_rationale(query, codes)
+
+    def _llm_generate_rationale(self, query: str, codes: List[str]) -> str:
+        """Use LLM to generate a concise rationale for the top recommendations."""
+        codes_str = ", ".join(codes[:3])
+        prompt = ChatPromptTemplate.from_template(
+            "You are a BIS standards expert. In 1-2 sentences, explain why these BIS standards "
+            "({codes}) are relevant to this product query: '{query}'. Be concise and technical."
+        )
+        chain = prompt | self.llm
+        result = chain.invoke({"codes": codes_str, "query": query})
+        return result.content.strip()
+
+    def _fallback_rationale(self, query: str, codes: List[str]) -> str:
+        """Generate a rule-based rationale from standard descriptions."""
+        top_code = codes[0]
+        top_desc = self.standard_descriptions.get(top_code, "the specified product category")
+
+        parts = [
+            f"{top_code} is the primary applicable standard, covering {top_desc} specifications."
+        ]
+
+        if len(codes) > 1:
+            related = codes[1:3]
+            related_descs = [
+                self.standard_descriptions.get(c, c) for c in related
+            ]
+            # Deduplicate descriptions before joining
+            unique_descs = list(dict.fromkeys(related_descs))
+            parts.append(
+                f"Related standards {', '.join(related)} cover "
+                f"{' and '.join(unique_descs)} and may also apply."
+            )
+
+        return " ".join(parts)
+
     def _rerank_codes(self, codes: List[str], query: str) -> List[str]:
         """Rerank codes based on semantic relevance to the query using LLM if available."""
         if not codes:

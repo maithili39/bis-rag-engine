@@ -60,12 +60,12 @@ class BISRAGPipeline:
                 print(f"  Loaded {len(self.known_codes)} known standard codes")
         return loaded
 
-    def process_query(self, query: str, top_k: int = TOP_K_RESULTS) -> Tuple[List[str], float]:
+    def process_query(self, query: str, top_k: int = TOP_K_RESULTS) -> Tuple[List[str], str, float]:
         """
         Process a single query through the full RAG pipeline.
         
         Returns:
-            Tuple of (list of standard code strings, total latency)
+            Tuple of (list of standard code strings, rationale string, total latency)
         """
         pipeline_start = time.time()
         
@@ -77,6 +77,9 @@ class BISRAGPipeline:
             query, retrieved_docs, top_k=top_k
         )
         
+        # Step 3: Generate rationale for the recommendations
+        rationale = self.generator.generate_rationale(query, codes)
+        
         total_latency = time.time() - pipeline_start
         
         # Track history
@@ -86,7 +89,7 @@ class BISRAGPipeline:
             "latency": total_latency
         })
         
-        return codes, total_latency
+        return codes, rationale, total_latency
 
     def process_query_detailed(self, query: str, top_k: int = TOP_K_RESULTS) -> Dict[str, Any]:
         """Process query and return detailed results (for web UI)."""
