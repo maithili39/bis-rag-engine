@@ -86,7 +86,7 @@ The system works perfectly **without** this. Rule-based rationale is used by def
 
 ### Step 1 — Clone the Repository
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/maithili39/bis-rag-engine
 cd bis-rag-engine
 ```
 
