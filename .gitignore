@@ -44,7 +44,7 @@ data/raw/
 data/processed/
 embeddings/
 models/
-chromadb/
+# chromadb/ is intentionally committed so HF Spaces doesn't need to rebuild on cold start
 # NOTE: known_codes.json is intentionally committed
 
 # Local results (not committed)

@@ -1,10 +1,8 @@
 """Data processing and chunking for BIS SP 21 standards documents."""
 
 import re
-import json
 import warnings
 from typing import List, Dict, Any, Optional, Tuple
-from pathlib import Path
 
 warnings.filterwarnings("ignore")
 
@@ -12,7 +10,8 @@ from pypdf import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 
-import sys, os
+import sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from config import CHUNK_SIZE, CHUNK_OVERLAP
 
@@ -25,7 +24,7 @@ class BISDataProcessor:
         r'IS\s+(\d+)\s*(?:\(([^)]+)\))?\s*:\s*(\d{4})',
         re.IGNORECASE
     )
-    
+
     # Pattern to match "SUMMARY OF" section headers
     SUMMARY_HEADER = re.compile(
         r'SUMMARY\s+OF\s*\n\s*(IS\s+\d+[^A-Z\n]*?)(?:\s{2,}|\n)([A-Z][A-Z\s,/()—\-]+)',
@@ -47,7 +46,7 @@ class BISDataProcessor:
         print(f"  Reading PDF: {pdf_path}")
         reader = PdfReader(pdf_path)
         print(f"  Total pages: {len(reader.pages)}")
-        
+
         full_text = ""
         for i, page in enumerate(reader.pages):
             try:
@@ -57,7 +56,7 @@ class BISDataProcessor:
             except Exception as e:
                 print(f"  Warning: Could not extract page {i+1}: {e}")
                 continue
-        
+
         print(f"  Extracted {len(full_text)} characters of text")
         return full_text
 
@@ -67,7 +66,7 @@ class BISDataProcessor:
         Each entry has: code, title, content.
         """
         standards = []
-        
+
         # Strategy: Split on "SUMMARY OF" markers to isolate each standard
         # The PDF has sections like:
         #   SUMMARY OF
@@ -75,61 +74,54 @@ class BISDataProcessor:
         #   (Fourth Revision)
         #   1. Scope — ...
         #   2. Requirements — ...
-        
+
         # Split text at "SUMMARY OF" boundaries
         parts = re.split(r'(?=SUMMARY\s+OF\s*\n)', full_text, flags=re.IGNORECASE)
-        
+
         print(f"  Found {len(parts)} potential standard sections")
-        
+
         for part in parts:
             if len(part.strip()) < 50:
                 continue
-            
+
             # Try to extract standard code and title from this section
             std_info = self._parse_standard_section(part)
             if std_info:
                 standards.append(std_info)
                 self.all_standard_codes.add(std_info["code"])
-        
+
         # Also do a global scan for any IS codes we might have missed
         all_codes = set(self.STANDARD_PATTERN.findall(full_text))
         for num, part_info, year in all_codes:
-            if part_info:
-                code = f"IS {num} (Part {part_info.strip()}): {year}"
-            else:
-                code = f"IS {num}: {year}"
+            code = self._format_code(num, part_info, year)
             # Normalize the code format
             code = self._normalize_code(code)
             self.all_standard_codes.add(code)
-        
+
         print(f"  Successfully parsed {len(standards)} standard entries")
         print(f"  Total unique standard codes found: {len(self.all_standard_codes)}")
-        
+
         return standards
 
     def _parse_standard_section(self, section_text: str) -> Optional[Dict[str, Any]]:
         """Parse a single standard section into structured data."""
-        
+
         lines = section_text.strip().split('\n')
         if len(lines) < 3:
             return None
-        
+
         # Look for the IS code in the first few lines
         code = None
         title = None
         code_line_idx = -1
-        
+
         for i, line in enumerate(lines[:10]):
             # Try to find IS code
             match = self.STANDARD_PATTERN.search(line)
             if match:
                 num, part_info, year = match.groups()
-                if part_info:
-                    code = f"IS {num} ({part_info.strip()}): {year}"
-                else:
-                    code = f"IS {num}: {year}"
-                code = self._normalize_code(code)
-                
+                code = self._format_code(num, part_info, year)
+
                 # Title often follows the code on the same line or next line
                 # Extract everything after the code pattern on this line
                 after_code = line[match.end():].strip()
@@ -140,13 +132,13 @@ class BISDataProcessor:
                     # Skip revision info lines
                     if next_line and not next_line.startswith('(') and len(next_line) > 3:
                         title = next_line
-                
+
                 code_line_idx = i
                 break
-        
+
         if not code:
             return None
-        
+
         # Clean up title
         if title:
             # Remove revision annotations
@@ -158,24 +150,40 @@ class BISDataProcessor:
                 title = title.title()
         else:
             title = "Unknown Title"
-        
+
         # Content is everything after the code/title lines
         content_start = max(code_line_idx + 1, 0)
         content = '\n'.join(lines[content_start:]).strip()
-        
+
         # Remove excessive whitespace
         content = re.sub(r'\n\s*\n\s*\n+', '\n\n', content)
         content = re.sub(r'  +', ' ', content)
-        
+
         if len(content) < 20:
             return None
-        
+
         return {
             "code": code,
             "title": title,
             "content": content,
             "full_text": section_text.strip()
         }
+
+    def _format_code(self, num: str, part_info: str, year: str) -> str:
+        """Build a canonical IS code from regex groups.
+
+        The 'part_info' capture group sometimes already contains the word
+        'Part' (e.g. 'Part 2'), so we must not prepend it again — doing so
+        produced malformed codes like 'IS 2185 (Part Part 2): 1983'.
+        """
+        if part_info and part_info.strip():
+            pi = part_info.strip()
+            if not re.match(r'part\b', pi, flags=re.IGNORECASE):
+                pi = f"Part {pi}"
+            code = f"IS {num} ({pi}): {year}"
+        else:
+            code = f"IS {num}: {year}"
+        return self._normalize_code(code)
 
     def _normalize_code(self, code: str) -> str:
         """Normalize a standard code to consistent format like 'IS 269: 1989' or 'IS 2185 (Part 2): 1983'."""
@@ -190,7 +198,7 @@ class BISDataProcessor:
     def create_documents_from_standards(self, standards: List[Dict[str, Any]]) -> List[Document]:
         """Create LangChain Document objects from parsed standards."""
         documents = []
-        
+
         for std in standards:
             # Create a rich text representation for embedding
             doc_text = f"""BIS Standard: {std['code']}
@@ -207,13 +215,13 @@ Title: {std['title']}
                 }
             )
             documents.append(doc)
-        
+
         return documents
 
     def chunk_documents(self, documents: List[Document]) -> List[Document]:
         """Split documents into chunks, preserving metadata."""
         chunked = []
-        
+
         for doc in documents:
             if len(doc.page_content) <= self.chunk_size:
                 # Small enough to keep as single chunk
@@ -227,7 +235,7 @@ Title: {std['title']}
                     chunk.metadata = doc.metadata.copy()
                 chunked.append(doc)  # Always keep the original too
                 chunked.extend(chunks)
-        
+
         return chunked
 
     def process_pdf(self, pdf_path: str) -> Tuple[List[Document], set]:
@@ -237,25 +245,25 @@ Title: {std['title']}
         """
         print("Step 1: Extracting text from PDF...")
         full_text = self.extract_pdf_text(pdf_path)
-        
+
         print("Step 2: Parsing individual standards...")
         standards = self.extract_standards_from_text(full_text)
-        
+
         print("Step 3: Creating document objects...")
         documents = self.create_documents_from_standards(standards)
-        
+
         print("Step 4: Chunking documents...")
         chunked_docs = self.chunk_documents(documents)
-        
+
         print(f"  Final: {len(chunked_docs)} document chunks from {len(standards)} standards")
-        
+
         # Also create page-level chunks as fallback for standards we couldn't parse
         print("Step 5: Creating page-level fallback chunks...")
         page_docs = self._create_page_level_chunks(full_text)
-        
+
         all_docs = chunked_docs + page_docs
         print(f"  Total documents (standards + page chunks): {len(all_docs)}")
-        
+
         return all_docs, self.all_standard_codes
 
     def _create_page_level_chunks(self, full_text: str) -> List[Document]:
@@ -266,14 +274,14 @@ Title: {std['title']}
             chunk_overlap=150,
             separators=["\n\n", "\n", ". ", " "]
         )
-        
+
         doc = Document(
             page_content=full_text,
             metadata={"source": "BIS SP 21 : 2005", "type": "page_chunk"}
         )
-        
+
         chunks = splitter.split_documents([doc])
-        
+
         # Enrich metadata by extracting any IS codes in each chunk
         enriched = []
         for chunk in chunks:
@@ -281,15 +289,11 @@ Title: {std['title']}
             if codes:
                 # Add the first found code as metadata
                 num, part_info, year = codes[0]
-                if part_info:
-                    code = f"IS {num} ({part_info.strip()}) : {year}"
-                else:
-                    code = f"IS {num} : {year}"
-                code = self._normalize_code(code)
+                code = self._format_code(num, part_info, year)
                 chunk.metadata["standard_code"] = code
                 self.all_standard_codes.add(code)
             enriched.append(chunk)
-        
+
         return enriched
 
     def get_all_known_codes(self) -> set:

@@ -8,6 +8,7 @@ import os
 import time
 from pathlib import Path
 
+# Suppress noisy PDF/transformer warnings in production
 warnings.filterwarnings("ignore")
 logging.getLogger("pypdf").setLevel(logging.ERROR)
 logging.getLogger("transformers").setLevel(logging.ERROR)
