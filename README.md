@@ -12,6 +12,8 @@ pinned: true
 
 A RAG (Retrieval-Augmented Generation) system that maps manufacturing product descriptions to the correct Bureau of Indian Standards (BIS) regulations. Built for the **BIS x Startup Studio Hackathon 2026** — "Accelerating MSE Compliance".
 
+**🚀 [Try it live on HuggingFace Spaces](https://maithili39-bis-rag-engine.hf.space/)**
+
 ---
 
 ## Performance
