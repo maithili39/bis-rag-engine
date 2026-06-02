@@ -7,23 +7,23 @@ single matrix-vector product. This has zero native dependencies (no compiler
 needed), installs and deploys anywhere, and starts up in well under a second.
 """
 
-import os
-import time
-import pickle
 import hashlib
+import os
+import pickle
+import sys
+import time
 import warnings
-from typing import List, Tuple, Dict, Any
+from typing import Any, Dict, List, Tuple
+
+import numpy as np
+from langchain_core.documents import Document
+from langchain_huggingface import HuggingFaceEmbeddings
+from rank_bm25 import BM25Okapi
 
 warnings.filterwarnings("ignore")
 
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_core.documents import Document
-from rank_bm25 import BM25Okapi
-import numpy as np
-
-import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config import EMBEDDING_MODEL, CHROMA_PERSIST_DIR, TOP_K_RETRIEVAL, SEMANTIC_WEIGHT, BM25_WEIGHT
+from config import BM25_WEIGHT, CHROMA_PERSIST_DIR, EMBEDDING_MODEL, SEMANTIC_WEIGHT, TOP_K_RETRIEVAL  # noqa: E402
 
 
 class BISRetriever:

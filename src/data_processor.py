@@ -1,19 +1,20 @@
 """Data processing and chunking for BIS SP 21 standards documents."""
 
+import os
 import re
+import sys
 import warnings
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from pypdf import PdfReader
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from config import CHUNK_SIZE, CHUNK_OVERLAP  # noqa: E402
 
 warnings.filterwarnings("ignore")
-
-from pypdf import PdfReader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_core.documents import Document
-
-import sys
-import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config import CHUNK_SIZE, CHUNK_OVERLAP
 
 
 class BISDataProcessor:
