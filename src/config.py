@@ -23,9 +23,6 @@ CHUNK_SIZE = 1000       # Optimized chunk size for technical documents
 CHUNK_OVERLAP = 250     # Increased overlap for better context preservation at boundaries
 TOP_K_RETRIEVAL = 12    # Reduced from 20 — enough candidates for top-5 output with less overhead
 TOP_K_RESULTS = 5       # Return top 5 standards
-MIN_CONFIDENCE_SCORE = 0.30  # Minimum hybrid score threshold. Results below this are filtered out.
-                             # Prevents hallucinated or low-confidence matches from being returned.
-                             # Tune down (0.20) for higher recall; up (0.40) for higher precision.
 
 # Database Configuration
 CHROMA_PERSIST_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chromadb")

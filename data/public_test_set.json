@@ -48,56 +48,5 @@
     "id": "PUB-10",
     "query": "Our company manufactures White Portland cement for architectural and decorative purposes. Which standard governs its physical and chemical requirements?",
     "expected_standards": ["IS 8042: 1989"]
-  },
-  {
-    "id": "PUB-11",
-    "query": "We make cement-based products. Which standards might apply?",
-    "expected_standards": ["IS 269: 1989", "IS 455: 1989", "IS 1489 (Part 2): 1991"]
-  },
-  {
-    "id": "PUB-12",
-    "query": "Is there a standard for broken stone and gravel used in roads and railway ballast?",
-    "expected_standards": ["IS 2386 (Part III): 1963"]
-  },
-  {
-    "id": "PUB-13",
-    "query": "We manufacture materials for strengthening and reinforcing concrete structures. What standard applies?",
-    "expected_standards": ["IS 2185 (Part 1): 1979"]
-  },
-  {
-    "id": "PUB-14",
-    "query": "Can you recommend a standard for high-strength specialized concrete applications?",
-    "expected_standards": []
-  },
-  {
-    "id": "PUB-15",
-    "query": "What BIS standard governs steel beam production?",
-    "expected_standards": []
-  },
-  {
-    "id": "PUB-16",
-    "query": "We need specifications for sand, aggregate, gravel for construction purposes.",
-    "expected_standards": ["IS 383: 1970", "IS 2386 (Part III): 1963"]
-  },
-  {
-    "id": "PUB-17",
-    "query": "Our factory produces concrete masonry products including hollow blocks and pavers. What standards cover these?",
-    "expected_standards": ["IS 2185 (Part 2): 1983"]
-  },
-  {
-    "id": "PUB-18",
-    "query": "I need guidance on materials for waterproofing and durability in concrete structures.",
-    "expected_standards": []
-  },
-  {
-    "id": "PUB-19",
-    "query": "Which IS code specifies requirements for cement used in precast concrete products like pipes and blocks?",
-    "expected_standards": ["IS 269: 1989"]
-  },
-  {
-    "id": "PUB-20",
-    "query": "What are the standards for fiber reinforced concrete composites?",
-    "expected_standards": []
   }
 ]
-

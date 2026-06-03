@@ -23,7 +23,7 @@ from rank_bm25 import BM25Okapi
 warnings.filterwarnings("ignore")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config import BM25_WEIGHT, CHROMA_PERSIST_DIR, EMBEDDING_MODEL, MIN_CONFIDENCE_SCORE, SEMANTIC_WEIGHT, TOP_K_RETRIEVAL  # noqa: E402
+from config import BM25_WEIGHT, CHROMA_PERSIST_DIR, EMBEDDING_MODEL, SEMANTIC_WEIGHT, TOP_K_RETRIEVAL  # noqa: E402
 
 
 class BISRetriever:
@@ -140,18 +140,13 @@ class BISRetriever:
         inference pipeline agree on ordering. The returned score is
         ``1 - hybrid_score`` so existing callers can recover a similarity via
         ``1 - score``.
-
-        Results with hybrid_score below MIN_CONFIDENCE_SCORE are filtered out
-        to prevent low-confidence or hallucinated matches.
         """
         if self.doc_embeddings is None:
             raise ValueError("Vectorstore not loaded.")
 
         start = time.time()
-        ranked = self._hybrid_rank(query, with_scores=True)
-        # Filter by confidence threshold, then take top-k
-        filtered = [(i, s) for i, s in ranked if s >= MIN_CONFIDENCE_SCORE][:k]
-        results = [(self.all_documents[i], float(1.0 - s)) for i, s in filtered]
+        ranked = self._hybrid_rank(query, with_scores=True)[:k]
+        results = [(self.all_documents[i], float(1.0 - s)) for i, s in ranked]
         latency = time.time() - start
         self.retrieval_times.append(latency)
         return results, latency

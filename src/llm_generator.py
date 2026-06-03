@@ -22,17 +22,6 @@ class RecommendationGenerator:
     Fallback to pure retrieval if API is unavailable.
     """
 
-    # Pure test-method / analysis standards that a manufacturer does not
-    # "comply with" when making a product — they describe how to test, not
-    # what to build. These leak in via page-level chunks (title is None) and
-    # pollute cement results in particular. NOTE: IS 2386 is deliberately NOT
-    # listed — the public test set treats it as a valid product-side answer.
-    NON_PRODUCT_CODES = {
-        "IS 4032: 1985",   # Methods of Chemical Analysis of Hydraulic Cement
-        "IS 4031: 1988",   # Methods of Physical Tests for Hydraulic Cement
-        "IS 650: 1991",    # Standard Sand for Testing of Cement
-    }
-
     def __init__(self, known_codes: Optional[Set[str]] = None):
         self.known_codes = known_codes or set()
         self.std_pattern = re.compile(
@@ -116,13 +105,9 @@ class RecommendationGenerator:
         # Normalize both lists for comparison
         known_normalized = {self._normalize_for_comparison(c) for c in self.known_codes}
 
-        excluded = {self._normalize_for_comparison(c) for c in self.NON_PRODUCT_CODES}
-
         filtered = []
         for code in codes:
             norm = self._normalize_for_comparison(code)
-            if norm in excluded:
-                continue
             if norm in known_normalized:
                 filtered.append(code)
 
@@ -164,21 +149,11 @@ class RecommendationGenerator:
         # Step 1: Extract codes from retrieved documents
         codes = self.extract_codes_from_documents(retrieved_documents)
 
-        # Build a code -> real title map from the retrieved docs so the
-        # reranker can match query words against what each standard actually
-        # covers (instead of only the 15 hardcoded descriptions).
-        code_titles: Dict[str, str] = {}
-        for doc in retrieved_documents:
-            c = self._normalize_code(doc.metadata.get("standard_code", ""))
-            t = doc.metadata.get("title", "")
-            if c and t and t != "Unknown Title" and c not in code_titles:
-                code_titles[c] = t
-
         # Step 2: Filter hallucinations
         filtered_codes = self.filter_hallucinations(codes)
 
         # Step 3: Rerank based on query relevance
-        reranked_codes = self._rerank_codes(filtered_codes, query, code_titles)
+        reranked_codes = self._rerank_codes(filtered_codes, query)
 
         # Step 4: Return top K
         top_codes = reranked_codes[:top_k]
@@ -234,9 +209,7 @@ class RecommendationGenerator:
 
         return " ".join(parts)
 
-    def _rerank_codes(
-        self, codes: List[str], query: str, code_titles: Optional[Dict[str, str]] = None
-    ) -> List[str]:
+    def _rerank_codes(self, codes: List[str], query: str) -> List[str]:
         """Rerank codes based on semantic relevance to the query using LLM if available."""
         if not codes:
             return codes
@@ -247,9 +220,9 @@ class RecommendationGenerator:
                 return self._llm_rerank_codes(codes, query)
             except Exception as e:
                 print(f"  Warning: LLM reranking failed, using fallback: {e}")
-                return self._fallback_rerank_codes(codes, query, code_titles)
+                return self._fallback_rerank_codes(codes, query)
         else:
-            return self._fallback_rerank_codes(codes, query, code_titles)
+            return self._fallback_rerank_codes(codes, query)
 
     def _llm_rerank_codes(self, codes: List[str], query: str) -> List[str]:
         """Use LLM to intelligently rank standards for the given query."""
@@ -295,9 +268,7 @@ Relevance ranking (most to least relevant):""")
             print(f"  Warning: LLM ranking parsing failed: {e}")
             return self._fallback_rerank_codes(codes, query)
 
-    def _fallback_rerank_codes(
-        self, codes: List[str], query: str, code_titles: Optional[Dict[str, str]] = None
-    ) -> List[str]:
+    def _fallback_rerank_codes(self, codes: List[str], query: str) -> List[str]:
         """Improved fallback reranking when LLM is not available.
 
         Uses multiple scoring factors to improve ranking quality:
@@ -307,7 +278,6 @@ Relevance ranking (most to least relevant):""")
         - Partial keyword matches
         - Position from semantic ranking
         """
-        code_titles = code_titles or {}
         query_lower = query.lower()
         query_tokens = set(query_lower.split())
 
@@ -325,18 +295,9 @@ Relevance ranking (most to least relevant):""")
         for idx, code in enumerate(codes):
             score = 0.0
 
-            # 1. Exact description match (weight: 2.5 per matching token).
-            # Prefer the real corpus title (covers all 561 standards) over the
-            # small hardcoded description table; fall back to the bare code.
-            description = (
-                self.standard_descriptions.get(code)
-                or code_titles.get(code)
-                or code.lower()
-            ).lower()
-            # Ignore generic filler words so "rapid hardening" beats "cement".
-            desc_tokens = set(description.split()) - {
-                "and", "or", "for", "of", "the", "with", "from", "in", "to", "general", "purposes",
-            }
+            # 1. Exact description match (weight: 2.0 per matching token)
+            description = self.standard_descriptions.get(code, code.lower())
+            desc_tokens = set(description.split())
             matching_tokens = query_tokens & desc_tokens
             if matching_tokens:
                 score += len(matching_tokens) * 2.5
