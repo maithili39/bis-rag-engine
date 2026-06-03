@@ -140,7 +140,7 @@ class BISRetriever:
         inference pipeline agree on ordering. The returned score is
         ``1 - hybrid_score`` so existing callers can recover a similarity via
         ``1 - score``.
-        
+
         Results with hybrid_score below MIN_CONFIDENCE_SCORE are filtered out
         to prevent low-confidence or hallucinated matches.
         """
