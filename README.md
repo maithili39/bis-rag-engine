@@ -173,6 +173,81 @@ All hyperparameters are in `src/config.py`:
 | `TOP_K_RESULTS` | `5` | Final standards returned per query |
 | `CHUNK_SIZE` | `1000` | Characters per document chunk |
 | `CHUNK_OVERLAP` | `250` | Overlap between adjacent chunks |
+| `MIN_CONFIDENCE_SCORE` | `0.30` | Minimum hybrid score threshold for results |
+
+---
+
+## Usage Examples & Case Studies
+
+### **Case Study 1: Cement Manufacturer**
+
+**Scenario:** A small cement plant needs to ensure compliance with Indian standards.
+
+**Query:** `"We are manufacturing 33-Grade Ordinary Portland Cement. What standard applies?"`
+
+**System Response:**
+```
+IS 269: 1989 — Ordinary Portland Cement (OPC)
+├─ Confidence: High
+├─ Covers: Chemical, physical requirements, testing methods
+├─ Best for: General-purpose concrete
+└─ Action: Implement quality checks for fineness, setting time, strength
+```
+
+**Impact:** The manufacturer can immediately reference the correct standard for product specification and quality assurance.
+
+---
+
+### **Case Study 2: Construction Aggregate Supplier**
+
+**Scenario:** A quarry operator needs to supply aggregates for a concrete project.
+
+**Query:** `"We extract natural sand and gravel. What standards govern their quality for concrete use?"`
+
+**System Response:**
+```
+IS 383: 1970 — Coarse and Fine Aggregates
+├─ Covers: Gradation, particle size, impurities
+├─ Applies to: Structural concrete
+└─ Testing: Sieve analysis, crushing value, water absorption
+```
+
+**Impact:** The supplier knows exactly which tests to perform and can certificate compliance to buyers.
+
+---
+
+### **Case Study 3: Concrete Masonry Manufacturer**
+
+**Scenario:** A company transitions from traditional bricks to hollow lightweight concrete blocks.
+
+**Query:** `"We manufacture hollow and solid lightweight concrete masonry blocks. What are the dimension and physical requirements?"`
+
+**System Response:**
+```
+IS 2185 (Part 2): 1983 — Hollow and Solid Lightweight Concrete Masonry Units
+├─ Covers: Dimensions, strength, density
+├─ Applications: Interior/exterior walls, non-load-bearing
+└─ Certification: Compression strength ≥ 3.5 MPa
+```
+
+**Impact:** Clear manufacturing targets and test protocols for production quality control.
+
+---
+
+### **What This System Does *Well***
+
+✅ **Exact matches:** "IS 269" → Finds IS 269: 1989 instantly  
+✅ **Paraphrased queries:** "Portland slag cement composition" → Finds IS 455: 1989  
+✅ **Multi-part matches:** "Aggregates for concrete" → Returns both IS 383 and IS 2386  
+✅ **No hallucinations:** Only returns standards from the source PDF
+
+### **What This System Does *Not* Handle**
+
+❌ **Steel standards** — Not in the dataset (Building Materials only)  
+❌ **Electrical standards** — Out of scope  
+❌ **Newer standards** — Limited to SP 21: 2005 data  
+❌ **Ambiguous/vague queries** — "What standard should I use?" → Returns nothing  
+❌ **Cross-domain lookups** — Can't recommend standards outside the dataset
 
 ---
 
