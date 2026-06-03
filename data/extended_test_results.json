@@ -1,0 +1,887 @@
+[
+  {
+    "id": "EXT-01",
+    "query": "We manufacture 33 grade ordinary portland cement. Which BIS standard covers its chemical and physical requirements?",
+    "expected_standards": [
+      "IS 269: 1989"
+    ],
+    "retrieved_standards": [
+      "IS 269: 1989",
+      "IS 12269: 1987",
+      "IS 8112: 1989",
+      "IS 8042: 1989",
+      "IS 8043: 1991"
+    ],
+    "latency_seconds": 1.043
+  },
+  {
+    "id": "EXT-02",
+    "query": "What standard governs 43 grade ordinary portland cement production?",
+    "expected_standards": [
+      "IS 8112: 1989"
+    ],
+    "retrieved_standards": [
+      "IS 8112: 1989",
+      "IS 269: 1989",
+      "IS 12269: 1987",
+      "IS 8043: 1991",
+      "IS 455: 1989"
+    ],
+    "latency_seconds": 0.225
+  },
+  {
+    "id": "EXT-03",
+    "query": "Which IS code specifies requirements for 53 grade ordinary portland cement?",
+    "expected_standards": [
+      "IS 12269: 1987"
+    ],
+    "retrieved_standards": [
+      "IS 12269: 1987",
+      "IS 8112: 1989",
+      "IS 269: 1989",
+      "IS 8042: 1989",
+      "IS 8112: 1991"
+    ],
+    "latency_seconds": 0.292
+  },
+  {
+    "id": "EXT-04",
+    "query": "We produce portland slag cement. What is the applicable specification?",
+    "expected_standards": [
+      "IS 455: 1989"
+    ],
+    "retrieved_standards": [
+      "IS 455: 1989",
+      "IS 12269: 1987",
+      "IS 8042: 1989",
+      "IS 269: 1989",
+      "IS 12423: 1988"
+    ],
+    "latency_seconds": 0.301
+  },
+  {
+    "id": "EXT-05",
+    "query": "Standard for portland pozzolana cement that is fly ash or calcined clay based?",
+    "expected_standards": [
+      "IS 1489 (Part 2): 1991"
+    ],
+    "retrieved_standards": [
+      "IS 1489 (Part 2): 1991",
+      "IS 269: 1989",
+      "IS 455: 1989",
+      "IS 8042: 1989",
+      "IS 8112: 1989"
+    ],
+    "latency_seconds": 0.344
+  },
+  {
+    "id": "EXT-06",
+    "query": "Which standard applies to masonry cement used for mortars but not structural concrete?",
+    "expected_standards": [
+      "IS 3466: 1988"
+    ],
+    "retrieved_standards": [
+      "IS 3466: 1988",
+      "IS 1237: 1980",
+      "IS 1489 (Part 2): 1991",
+      "IS 269: 1989",
+      "IS 455: 1989"
+    ],
+    "latency_seconds": 0.338
+  },
+  {
+    "id": "EXT-07",
+    "query": "We make supersulphated cement for marine and aggressive water conditions. What is the standard?",
+    "expected_standards": [
+      "IS 6909: 1990"
+    ],
+    "retrieved_standards": [
+      "IS 6909: 1990",
+      "IS 6452: 1989",
+      "IS 12269: 1987",
+      "IS 269: 1989",
+      "IS 8042: 1989"
+    ],
+    "latency_seconds": 0.363
+  },
+  {
+    "id": "EXT-08",
+    "query": "Standard for white portland cement used for architectural and decorative work?",
+    "expected_standards": [
+      "IS 8042: 1989"
+    ],
+    "retrieved_standards": [
+      "IS 8042: 1989",
+      "IS 8041: 1990",
+      "IS 269: 1989",
+      "IS 455: 1989",
+      "IS 8112: 1989"
+    ],
+    "latency_seconds": 0.269
+  },
+  {
+    "id": "EXT-09",
+    "query": "Which IS code covers rapid hardening portland cement?",
+    "expected_standards": [
+      "IS 8041: 1990"
+    ],
+    "retrieved_standards": [
+      "IS 8041: 1990",
+      "IS 269: 1989",
+      "IS 8042: 1989",
+      "IS 455: 1989",
+      "IS 8112: 1989"
+    ],
+    "latency_seconds": 0.23
+  },
+  {
+    "id": "EXT-10",
+    "query": "We manufacture hydrophobic portland cement. What specification applies?",
+    "expected_standards": [
+      "IS 8043: 1991"
+    ],
+    "retrieved_standards": [
+      "IS 8043: 1991",
+      "IS 269: 1989",
+      "IS 8042: 1989",
+      "IS 8041: 1990",
+      "IS 455: 1989"
+    ],
+    "latency_seconds": 0.261
+  },
+  {
+    "id": "EXT-11",
+    "query": "Standard for sulphate resisting portland cement for use in sulphate-rich soils?",
+    "expected_standards": [
+      "IS 12330: 1988"
+    ],
+    "retrieved_standards": [
+      "IS 12330: 1988",
+      "IS 12269: 1987",
+      "IS 455: 1989",
+      "IS 12423: 1988",
+      "IS 12089: 1987"
+    ],
+    "latency_seconds": 0.297
+  },
+  {
+    "id": "EXT-12",
+    "query": "Which standard governs high alumina cement for structural use?",
+    "expected_standards": [
+      "IS 6452: 1989"
+    ],
+    "retrieved_standards": [
+      "IS 6452: 1989",
+      "IS 3466: 1988",
+      "IS 269: 1989",
+      "IS 455: 1989",
+      "IS 6909: 1990"
+    ],
+    "latency_seconds": 0.236
+  },
+  {
+    "id": "EXT-13",
+    "query": "We supply coarse and fine aggregates from natural sources for concrete. Which standard applies?",
+    "expected_standards": [
+      "IS 383: 1970"
+    ],
+    "retrieved_standards": [
+      "IS 383: 1970",
+      "IS 2686: 1977",
+      "IS 8374: 1977",
+      "IS 9510: 1980",
+      "IS 2116: 1980"
+    ],
+    "latency_seconds": 0.293
+  },
+  {
+    "id": "EXT-14",
+    "query": "Standard for artificial lightweight aggregates used in concrete?",
+    "expected_standards": [
+      "IS 9142: 1979"
+    ],
+    "retrieved_standards": [
+      "IS 9142: 1979",
+      "IS 383: 1970",
+      "IS 2185 (Part 2): 1983",
+      "IS 3466: 1988",
+      "IS 2386: 1963"
+    ],
+    "latency_seconds": 0.255
+  },
+  {
+    "id": "EXT-15",
+    "query": "Which IS code covers cinder used as fine aggregate for lime concrete?",
+    "expected_standards": [
+      "IS 2686: 1977"
+    ],
+    "retrieved_standards": [
+      "IS 2686: 1977",
+      "IS 3115: 1992",
+      "IS 1077: 1992",
+      "IS 712: 1984",
+      "IS 3068: 1986"
+    ],
+    "latency_seconds": 0.292
+  },
+  {
+    "id": "EXT-16",
+    "query": "What standard specifies coarse aggregate for water bound macadam roads?",
+    "expected_standards": [
+      "IS 6579: 1981"
+    ],
+    "retrieved_standards": [
+      "IS 6579: 1981",
+      "IS 383: 1970",
+      "IS 3068: 1986",
+      "IS 2386: 1963",
+      "IS 5640: 1970"
+    ],
+    "latency_seconds": 0.343
+  },
+  {
+    "id": "EXT-17",
+    "query": "We make common burnt clay building bricks. What is the specification?",
+    "expected_standards": [
+      "IS 1077: 1992"
+    ],
+    "retrieved_standards": [
+      "IS 1077: 1992",
+      "IS 13757: 1993",
+      "IS 2222: 1991",
+      "IS 3495: 1992",
+      "IS 2180: 1988"
+    ],
+    "latency_seconds": 0.329
+  },
+  {
+    "id": "EXT-18",
+    "query": "Standard for heavy duty burnt clay building bricks?",
+    "expected_standards": [
+      "IS 2180: 1988"
+    ],
+    "retrieved_standards": [
+      "IS 2180: 1988",
+      "IS 1077: 1992",
+      "IS 13757: 1993",
+      "IS 6165: 1992",
+      "IS 14223 (Part 1): 1995"
+    ],
+    "latency_seconds": 0.292
+  },
+  {
+    "id": "EXT-19",
+    "query": "Which standard covers burnt clay perforated building bricks?",
+    "expected_standards": [
+      "IS 2222: 1991"
+    ],
+    "retrieved_standards": [
+      "IS 2222: 1991",
+      "IS 2180: 1988",
+      "IS 1077: 1992",
+      "IS 14223 (Part 1): 1995",
+      "IS 3495: 1992"
+    ],
+    "latency_seconds": 0.246
+  },
+  {
+    "id": "EXT-20",
+    "query": "We produce burnt clay facing bricks. What IS code applies?",
+    "expected_standards": [
+      "IS 2691: 1988"
+    ],
+    "retrieved_standards": [
+      "IS 2691: 1988",
+      "IS 2222: 1991",
+      "IS 1077: 1992",
+      "IS 6165: 1992",
+      "IS 3495: 1992"
+    ],
+    "latency_seconds": 0.233
+  },
+  {
+    "id": "EXT-21",
+    "query": "Standard for calcium silicate bricks?",
+    "expected_standards": [
+      "IS 4139: 1989"
+    ],
+    "retrieved_standards": [
+      "IS 4139: 1989",
+      "IS 8154: 1993",
+      "IS 9428: 1993",
+      "IS 11128: 1984",
+      "IS 3495: 1992"
+    ],
+    "latency_seconds": 0.194
+  },
+  {
+    "id": "EXT-22",
+    "query": "Which IS code covers pulverized fuel ash lime bricks?",
+    "expected_standards": [
+      "IS 12894: 2002"
+    ],
+    "retrieved_standards": [
+      "IS 12894: 2002",
+      "IS 10772: 1983",
+      "IS 1514: 1990",
+      "IS 1727: 1967",
+      "IS 4098: 1983"
+    ],
+    "latency_seconds": 0.224
+  },
+  {
+    "id": "EXT-23",
+    "query": "We manufacture burnt clay fly ash building bricks. What standard applies?",
+    "expected_standards": [
+      "IS 13757: 1993"
+    ],
+    "retrieved_standards": [
+      "IS 13757: 1993",
+      "IS 1077: 1992",
+      "IS 2222: 1991",
+      "IS 6165: 1992",
+      "IS 14223 (Part 1): 1995"
+    ],
+    "latency_seconds": 0.273
+  },
+  {
+    "id": "EXT-24",
+    "query": "Standard for acid resistant bricks used in chemical plants?",
+    "expected_standards": [
+      "IS 4860: 1968"
+    ],
+    "retrieved_standards": [
+      "IS 4860: 1968",
+      "IS 4832 (Part 3): 1968",
+      "IS 4832 (Part 2): 1969",
+      "IS 4832 (Part 1): 1969",
+      "IS 1237: 1980"
+    ],
+    "latency_seconds": 0.262
+  },
+  {
+    "id": "EXT-25",
+    "query": "Which standard governs hollow and solid concrete masonry units, lightweight?",
+    "expected_standards": [
+      "IS 2185 (Part 2): 1983"
+    ],
+    "retrieved_standards": [
+      "IS 2185 (Part 2): 1983",
+      "IS 2185 (Part 1): 1979",
+      "IS 12330: 1988",
+      "IS 2185 (PART 2): 1983"
+    ],
+    "latency_seconds": 0.25
+  },
+  {
+    "id": "EXT-26",
+    "query": "We make load bearing concrete masonry units, the standard hollow and solid blocks. What IS code?",
+    "expected_standards": [
+      "IS 2185 (Part 1): 1979"
+    ],
+    "retrieved_standards": [
+      "IS 2185 (Part 2): 1983",
+      "IS 2185 (Part 1): 1979",
+      "IS 2185 (PART 2): 1983",
+      "IS 12330: 1988"
+    ],
+    "latency_seconds": 0.311
+  },
+  {
+    "id": "EXT-27",
+    "query": "Standard for precast concrete stone masonry blocks?",
+    "expected_standards": [
+      "IS 12440: 1988"
+    ],
+    "retrieved_standards": [
+      "IS 12440: 1988",
+      "IS 3620: 1979",
+      "IS 10388: 1982",
+      "IS 9893: 1981",
+      "IS 12592: 2002"
+    ],
+    "latency_seconds": 0.197
+  },
+  {
+    "id": "EXT-28",
+    "query": "We manufacture precast concrete pipes with and without reinforcement for water mains. Which standard?",
+    "expected_standards": [
+      "IS 458: 2003"
+    ],
+    "retrieved_standards": [
+      "IS 458: 2003",
+      "IS 14241: 1995",
+      "IS 13990: 1994",
+      "IS 14201: 1994",
+      "IS 12592: 2002"
+    ],
+    "latency_seconds": 0.285
+  },
+  {
+    "id": "EXT-29",
+    "query": "Standard for prestressed concrete pipes?",
+    "expected_standards": [
+      "IS 784: 2001"
+    ],
+    "retrieved_standards": [
+      "IS 784: 2001",
+      "IS 6003: 1983",
+      "IS 458: 2003",
+      "IS 3597: 1998",
+      "IS 1784: 2001"
+    ],
+    "latency_seconds": 0.225
+  },
+  {
+    "id": "EXT-30",
+    "query": "Which IS code covers asbestos cement pressure pipes?",
+    "expected_standards": [
+      "IS 1592: 2003"
+    ],
+    "retrieved_standards": [
+      "IS 1592: 2003",
+      "IS 9627: 1980",
+      "IS 5531: 1988",
+      "IS 459: 1992",
+      "IS 2096: 1992"
+    ],
+    "latency_seconds": 0.245
+  },
+  {
+    "id": "EXT-31",
+    "query": "We make high density polyethylene HDPE pipes for water supply. What standard applies?",
+    "expected_standards": [
+      "IS 4984: 1995"
+    ],
+    "retrieved_standards": [
+      "IS 4984: 1995",
+      "IS 3076: 1985",
+      "IS 8360 (Part 3): 1977",
+      "IS 8008 (Part 7): 2003",
+      "IS 8008 (Part 5): 2003"
+    ],
+    "latency_seconds": 0.299
+  },
+  {
+    "id": "EXT-32",
+    "query": "Standard for unplasticized PVC pipes for potable water supply?",
+    "expected_standards": [
+      "IS 4985: 2000"
+    ],
+    "retrieved_standards": [
+      "IS 4985: 2000",
+      "IS 10124 (Part 1): 1988",
+      "IS 14735: 1999",
+      "IS 6307: 1987",
+      "IS 13592: 1992"
+    ],
+    "latency_seconds": 0.238
+  },
+  {
+    "id": "EXT-33",
+    "query": "Which standard governs salt glazed stoneware pipes and fittings?",
+    "expected_standards": [
+      "IS 651: 1992"
+    ],
+    "retrieved_standards": [
+      "IS 651: 1992",
+      "IS 3006: 1979",
+      "IS 14695: 1999",
+      "IS 3589: 2001",
+      "IS 4270: 2001"
+    ],
+    "latency_seconds": 0.244
+  },
+  {
+    "id": "EXT-34",
+    "query": "We produce high strength deformed steel bars for concrete reinforcement. What IS code?",
+    "expected_standards": [
+      "IS 1786: 1985"
+    ],
+    "retrieved_standards": [
+      "IS 1786: 1985",
+      "IS 14241: 1995",
+      "IS 1599: 1985",
+      "IS 1608: 1995",
+      "IS 2090: 1983"
+    ],
+    "latency_seconds": 0.285
+  },
+  {
+    "id": "EXT-35",
+    "query": "Standard for mild steel and medium tensile steel bars for concrete reinforcement?",
+    "expected_standards": [
+      "IS 432 (Part 1): 1982"
+    ],
+    "retrieved_standards": [
+      "IS 432 (Part 1): 1982",
+      "IS 280: 1978",
+      "IS 14201: 1994",
+      "IS 1608: 1995",
+      "IS 1599: 1985"
+    ],
+    "latency_seconds": 0.257
+  },
+  {
+    "id": "EXT-36",
+    "query": "Which IS code covers steel for general structural purposes?",
+    "expected_standards": [
+      "IS 2062: 1999"
+    ],
+    "retrieved_standards": [
+      "IS 2062: 1999",
+      "IS 811: 1987",
+      "IS 4923: 1997",
+      "IS 1732: 1989",
+      "IS 1863: 1979"
+    ],
+    "latency_seconds": 0.203
+  },
+  {
+    "id": "EXT-37",
+    "query": "We manufacture steel tubes for structural purposes. What standard applies?",
+    "expected_standards": [
+      "IS 1161: 1998"
+    ],
+    "retrieved_standards": [
+      "IS 1161: 1998",
+      "IS 1239 (Part 1): 2004",
+      "IS 1149: 1982",
+      "IS 1608: 1995",
+      "IS 2328: 1983"
+    ],
+    "latency_seconds": 0.216
+  },
+  {
+    "id": "EXT-38",
+    "query": "Standard giving dimensions for hot rolled steel beams and sections?",
+    "expected_standards": [
+      "IS 808: 1989"
+    ],
+    "retrieved_standards": [
+      "IS 808: 1989",
+      "IS 12778: 2004",
+      "IS 2678: 1987",
+      "IS 814: 2004",
+      "IS 1278: 1972"
+    ],
+    "latency_seconds": 0.222
+  },
+  {
+    "id": "EXT-39",
+    "query": "Which standard covers welded steel wire fabric for reinforcement?",
+    "expected_standards": [
+      "IS 4948: 2002"
+    ],
+    "retrieved_standards": [
+      "IS 4948: 2002",
+      "IS 1566: 1982",
+      "IS 4621: 1975",
+      "IS 1716: 1985",
+      "IS 432 (Part 2): 1982"
+    ],
+    "latency_seconds": 0.22
+  },
+  {
+    "id": "EXT-40",
+    "query": "We make galvanized steel sheets, plain and corrugated. What is the specification?",
+    "expected_standards": [
+      "IS 277: 2003"
+    ],
+    "retrieved_standards": [
+      "IS 277: 2003",
+      "IS 1079: 1994",
+      "IS 1239 (Part 1): 2004",
+      "IS 1730: 1989",
+      "IS 1852: 1985"
+    ],
+    "latency_seconds": 0.264
+  },
+  {
+    "id": "EXT-41",
+    "query": "Standard for cement concrete flooring tiles?",
+    "expected_standards": [
+      "IS 1237: 1980"
+    ],
+    "retrieved_standards": [
+      "IS 1237: 1980",
+      "IS 1489 (Part 2): 1991",
+      "IS 459: 1992",
+      "IS 9893: 1981",
+      "IS 10388: 1982"
+    ],
+    "latency_seconds": 0.209
+  },
+  {
+    "id": "EXT-42",
+    "query": "Which IS code covers clay flooring tiles?",
+    "expected_standards": [
+      "IS 1478: 1992"
+    ],
+    "retrieved_standards": [
+      "IS 1478: 1992",
+      "IS 1464: 1992",
+      "IS 3951 (Part 1): 1975",
+      "IS 1237: 1980",
+      "IS 654: 1992"
+    ],
+    "latency_seconds": 0.222
+  },
+  {
+    "id": "EXT-43",
+    "query": "We produce Mangalore pattern clay roofing tiles. What standard applies?",
+    "expected_standards": [
+      "IS 654: 1992"
+    ],
+    "retrieved_standards": [
+      "IS 654: 1992",
+      "IS 1464: 1992",
+      "IS 14223 (Part 1): 1995",
+      "IS 1478: 1992",
+      "IS 3367: 1993"
+    ],
+    "latency_seconds": 0.22
+  },
+  {
+    "id": "EXT-44",
+    "query": "Standard for roofing slate tiles?",
+    "expected_standards": [
+      "IS 6250: 1981"
+    ],
+    "retrieved_standards": [
+      "IS 6250: 1981",
+      "IS 3622: 1977",
+      "IS 4122: 1967",
+      "IS 5119 (Part 1): 1968",
+      "IS 1077: 1992"
+    ],
+    "latency_seconds": 0.145
+  },
+  {
+    "id": "EXT-45",
+    "query": "Which standard governs flat transparent sheet glass?",
+    "expected_standards": [
+      "IS 2835: 1987"
+    ],
+    "retrieved_standards": [
+      "IS 2835: 1987",
+      "IS 2553 (Part 1): 1990"
+    ],
+    "latency_seconds": 0.189
+  },
+  {
+    "id": "EXT-46",
+    "query": "We manufacture safety glass for buildings and vehicles. What IS code?",
+    "expected_standards": [
+      "IS 2553 (Part 1): 1990"
+    ],
+    "retrieved_standards": [
+      "IS 2553 (Part 1): 1990",
+      "IS 2835: 1987",
+      "IS 2553 (PART 1): 1990",
+      "IS 2553 (Part1): 1990"
+    ],
+    "latency_seconds": 0.236
+  },
+  {
+    "id": "EXT-47",
+    "query": "Standard for building limes used in construction?",
+    "expected_standards": [
+      "IS 712: 1984"
+    ],
+    "retrieved_standards": [
+      "IS 712: 1984",
+      "IS 1514: 1990",
+      "IS 6932: 1973",
+      "IS 2686: 1977",
+      "IS 3068: 1986"
+    ],
+    "latency_seconds": 0.196
+  },
+  {
+    "id": "EXT-48",
+    "query": "Which IS code covers block boards made of wood?",
+    "expected_standards": [
+      "IS 1659: 2004"
+    ],
+    "retrieved_standards": [
+      "IS 1659: 2004",
+      "IS 1734 (Part 11): 1983",
+      "IS 14443: 1997"
+    ],
+    "latency_seconds": 0.253
+  },
+  {
+    "id": "EXT-49",
+    "query": "We make plywood for concrete shuttering and formwork. What standard applies?",
+    "expected_standards": [
+      "IS 4990: 1993"
+    ],
+    "retrieved_standards": [
+      "IS 4990: 1993",
+      "IS 5539: 1969",
+      "IS 848: 1974",
+      "IS 12049: 1987",
+      "IS 1734: 1983"
+    ],
+    "latency_seconds": 0.276
+  },
+  {
+    "id": "EXT-50",
+    "query": "Standard for fire retardant plywood?",
+    "expected_standards": [
+      "IS 5509: 2000"
+    ],
+    "retrieved_standards": [
+      "IS 5509: 2000",
+      "IS 12120: 1987",
+      "IS 303: 1989",
+      "IS 3129: 1985",
+      "IS 12049: 1987"
+    ],
+    "latency_seconds": 0.22
+  },
+  {
+    "id": "EXT-51",
+    "query": "Which standard covers bitumen felts for waterproofing and damp-proofing?",
+    "expected_standards": [
+      "IS 1322: 1993"
+    ],
+    "retrieved_standards": [
+      "IS 1322: 1993",
+      "IS 7193: 1974",
+      "IS 13826: 1993",
+      "IS 1580: 1991",
+      "IS 2645: 2003"
+    ],
+    "latency_seconds": 0.286
+  },
+  {
+    "id": "EXT-52",
+    "query": "We supply integral cement waterproofing compounds. What IS code?",
+    "expected_standards": [
+      "IS 2645: 2003"
+    ],
+    "retrieved_standards": [
+      "IS 2645: 2003",
+      "IS 1322: 1993",
+      "IS 1580: 1991",
+      "IS 3037: 1986",
+      "IS 3384: 1986"
+    ],
+    "latency_seconds": 0.242
+  },
+  {
+    "id": "EXT-53",
+    "query": "Standard for flushing cisterns for water closets and urinals?",
+    "expected_standards": [
+      "IS 774: 2004"
+    ],
+    "retrieved_standards": [
+      "IS 7231: 1994",
+      "IS 774: 2004",
+      "IS 2326: 1987"
+    ],
+    "latency_seconds": 0.266
+  },
+  {
+    "id": "EXT-54",
+    "query": "Which IS code covers sand for masonry mortars?",
+    "expected_standards": [
+      "IS 2116: 1980"
+    ],
+    "retrieved_standards": [
+      "IS 2116: 1980",
+      "IS 1542: 1992",
+      "IS 1727: 1967",
+      "IS 2250: 1981",
+      "IS 1237: 1980"
+    ],
+    "latency_seconds": 0.264
+  },
+  {
+    "id": "EXT-55",
+    "query": "Standard for sand used for plaster work?",
+    "expected_standards": [
+      "IS 1542: 1992"
+    ],
+    "retrieved_standards": [
+      "IS 1542: 1992",
+      "IS 2116: 1980",
+      "IS 1727: 1967",
+      "IS 2849: 1983",
+      "IS 2250: 1981"
+    ],
+    "latency_seconds": 0.197
+  },
+  {
+    "id": "EXT-56",
+    "query": "We make cement-based products generally. Which cement standards might apply?",
+    "expected_standards": [
+      "IS 269: 1989",
+      "IS 455: 1989",
+      "IS 1489 (Part 2): 1991",
+      "IS 8112: 1989",
+      "IS 12269: 1987"
+    ],
+    "retrieved_standards": [
+      "IS 2098: 1997",
+      "IS 1626: 1984",
+      "IS 8870: 1978",
+      "IS 1626 (Part 2): 1994",
+      "IS 2096: 1992"
+    ],
+    "latency_seconds": 0.243
+  },
+  {
+    "id": "EXT-57",
+    "query": "Looking for standards for sand, gravel and aggregate for construction.",
+    "expected_standards": [
+      "IS 383: 1970",
+      "IS 2116: 1980"
+    ],
+    "retrieved_standards": [
+      "IS 6579: 1981",
+      "IS 383: 1970",
+      "IS 1542: 1992",
+      "IS 2116: 1980",
+      "IS 1727: 1967"
+    ],
+    "latency_seconds": 0.256
+  },
+  {
+    "id": "EXT-58",
+    "query": "Can you recommend a standard for advanced fibre reinforced polymer composite rebar?",
+    "expected_standards": [],
+    "retrieved_standards": [
+      "IS 12709: 1994",
+      "IS 14402: 1996",
+      "IS 14856: 2000",
+      "IS 14871: 2000",
+      "IS 14588: 1999"
+    ],
+    "latency_seconds": 0.268
+  },
+  {
+    "id": "EXT-59",
+    "query": "What BIS standard governs lithium-ion battery enclosures for solar plants?",
+    "expected_standards": [],
+    "retrieved_standards": [
+      "IS 14772: 2000"
+    ],
+    "latency_seconds": 0.293
+  },
+  {
+    "id": "EXT-60",
+    "query": "Standard for self-compacting nano-engineered concrete mix design?",
+    "expected_standards": [],
+    "retrieved_standards": [
+      "IS 12592: 2002",
+      "IS 2185 (Part 2): 1983",
+      "IS 458: 2003",
+      "IS 4990: 1993",
+      "IS 6003: 1983"
+    ],
+    "latency_seconds": 0.237
+  }
+]
