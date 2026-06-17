@@ -4,11 +4,11 @@ import time
 from pathlib import Path
 import streamlit as st
 
-# Add src to path
+# Add src to path so internal src imports work
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from rag_pipeline import BISRAGPipeline
-from config import CHROMA_PERSIST_DIR, DATASET_PDF
+from src.rag_pipeline import BISRAGPipeline
+from src.config import CHROMA_PERSIST_DIR, DATASET_PDF
 
 # Page Configuration
 st.set_page_config(
@@ -282,17 +282,12 @@ st.markdown("""
             <h1>Bureau of Indian Standards</h1>
             <p>STANDARDS RECOMMENDATION ENGINE &middot; SP 21 : 2005 BUILDING MATERIALS HANDBOOK</p>
         </div>
-    </div>
-    <div class="portal-btn">IS Portal v2.0</div>
 </div>
+
 
 <div class="main-nav">
     <ul>
         <li class="active">STANDARDS SEARCH</li>
-        <li>BROWSE CATALOGUE</li>
-        <li>IS AMENDMENTS</li>
-        <li>CERTIFICATION</li>
-        <li>HELP & DOCS</li>
     </ul>
 </div>
 """, unsafe_allow_html=True)
@@ -319,8 +314,8 @@ if "query_input" not in st.session_state:
     st.session_state["query_input"] = ""
 
 # Sidebar Layout
-st.sidebar.markdown('<div class="sidebar-section-title">SEARCH SETTINGS</div>', unsafe_allow_html=True)
-top_k = st.sidebar.slider("NUMBER OF RESULTS", min_value=1, max_value=10, value=5)
+# Using a fixed number of results internally instead of a slider
+top_k = 5
 
 st.sidebar.markdown('<div class="sidebar-section-title">SAMPLE QUERIES</div>', unsafe_allow_html=True)
 

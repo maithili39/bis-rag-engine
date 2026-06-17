@@ -25,8 +25,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from rag_pipeline import BISRAGPipeline
-from config import CHROMA_PERSIST_DIR, DATASET_PDF
+from src.rag_pipeline import BISRAGPipeline
+from src.config import CHROMA_PERSIST_DIR, DATASET_PDF
 
 _pipeline: Optional[BISRAGPipeline] = None
 
