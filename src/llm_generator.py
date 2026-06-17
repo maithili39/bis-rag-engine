@@ -1,7 +1,7 @@
 """Recommendation generator - LLM-enhanced with OpenAI for intelligent reranking."""
 
-import json
 import re
+import os
 import time
 from typing import List, Dict, Tuple, Set, Optional
 from difflib import SequenceMatcher
@@ -10,7 +10,9 @@ from langchain_core.documents import Document
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 
-from config import OPENAI_API_KEY, LLM_MODEL
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from config import OPENAI_API_KEY
 
 
 class RecommendationGenerator:
@@ -46,9 +48,9 @@ class RecommendationGenerator:
             try:
                 self.llm = ChatOpenAI(
                     api_key=OPENAI_API_KEY,
-                    model_name=LLM_MODEL,
-                    temperature=0.0,
-                    max_tokens=500,
+                    model_name="gpt-3.5-turbo",
+                    temperature=0.2,
+                    max_tokens=500
                 )
             except Exception as e:
                 print(f"  Warning: Could not initialize OpenAI LLM: {e}")
@@ -59,7 +61,13 @@ class RecommendationGenerator:
         self.known_codes = codes
 
     def set_corpus_titles(self, code_to_title: Dict[str, str]) -> None:
-        """Populate standard_descriptions from the full parsed corpus (replaces hardcoded dict)."""
+        """Populate standard_descriptions from the full parsed corpus.
+
+        Replaces the hardcoded ~15-entry description table with titles for all
+        standards found in the source PDF. Called by the pipeline after the
+        vectorstore is loaded so the fallback reranker can score any standard,
+        not just the hand-listed ones.
+        """
         for code, title in code_to_title.items():
             if title and title != "Unknown Title":
                 self.standard_descriptions[self._normalize_code(code)] = title.lower()
@@ -256,41 +264,47 @@ class RecommendationGenerator:
             return self._fallback_rerank_codes(codes, query, code_titles)
 
     def _llm_rerank_codes(self, codes: List[str], query: str) -> List[str]:
-        """Use LLM to intelligently rank standards for the given query.
-
-        Returns codes ordered most-relevant first. Uses JSON output so parsing
-        is unambiguous regardless of LLM verbosity.
-        """
+        """Use LLM to intelligently rank standards for the given query."""
         if not codes:
             return codes
 
-        codes_json = json.dumps(codes)
-        prompt = ChatPromptTemplate.from_template(
-            "You are an expert on Indian Bureau of Indian Standards (BIS).\n"
-            "Reorder the following BIS standard codes from MOST to LEAST relevant for the query.\n"
-            "Return ONLY a JSON array of the same codes, reordered. No explanation.\n\n"
-            "Query: {query}\n\n"
-            "Codes: {codes_json}\n\n"
-            "Reordered JSON array:"
-        )
+        # Create a prompt for the LLM to rank the standards
+        codes_str = "\n".join([f"{i+1}. {code}" for i, code in enumerate(codes)])
+
+        prompt = ChatPromptTemplate.from_template("""
+You are an expert on Indian Building Standards (BIS).
+Rank the following BIS standards by how relevant they are to this product/query on a scale of 1-10.
+Return ONLY the ranking numbers in descending order of relevance (most relevant first).
+Format: comma-separated numbers (e.g., "1,3,2,4,5")
+
+Query: {query}
+
+Standards to rank:
+{codes_str}
+
+Relevance ranking (most to least relevant):""")
 
         try:
             chain = prompt | self.llm
-            result = chain.invoke({"query": query, "codes_json": codes_json})
-            raw = result.content.strip()
-            # Extract the JSON array even if the model wraps it in markdown
-            match = re.search(r'\[.*\]', raw, re.DOTALL)
-            if not match:
-                raise ValueError("No JSON array found in LLM response")
-            ranked: List[str] = json.loads(match.group())
-            # Only keep codes that were in the original list (prevent hallucinations)
-            original_set = set(codes)
-            ranked = [c for c in ranked if c in original_set]
-            # Append any missing codes at the end (LLM may drop some)
-            ranked += [c for c in codes if c not in set(ranked)]
-            return ranked
+            result = chain.invoke({"query": query, "codes_str": codes_str})
+            ranking_str = result.content.strip()
+
+            # Parse the ranking
+            ranking = []
+            for item in ranking_str.split(","):
+                item = item.strip()
+                if item.isdigit():
+                    idx = int(item) - 1
+                    if 0 <= idx < len(codes):
+                        ranking.append(codes[idx])
+
+            # Return ranked codes, or fallback if parsing failed
+            if ranking and len(ranking) >= len(codes) // 2:  # At least 50% parsed successfully
+                return ranking + [c for c in codes if c not in ranking]  # Add any unparsed codes at end
+            else:
+                return self._fallback_rerank_codes(codes, query)
         except Exception as e:
-            print(f"  Warning: LLM reranking failed ({e}), using fallback")
+            print(f"  Warning: LLM ranking parsing failed: {e}")
             return self._fallback_rerank_codes(codes, query)
 
     def _fallback_rerank_codes(

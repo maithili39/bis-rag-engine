@@ -96,7 +96,7 @@ class TestOutputSchema:
         assert len(rationale) > 0
 
 
-# ── Corpus title sync ───────────────────────────────────────────────
+# ── Corpus title sync ─────────────────────────────────────────────────────────
 
 class TestCorpusTitleSync:
     def test_set_corpus_titles_populates_descriptions(self, gen):
@@ -124,20 +124,18 @@ class TestCorpusTitleSync:
         assert desc != "unknown title"
 
 
-# ── LLM reranker JSON parsing ────────────────────────────────────────
+# ── LLM reranker JSON parsing ─────────────────────────────────────────────────
 
 class TestLLMRerankerJsonParsing:
     """Verify the LLM reranker correctly parses JSON arrays and gracefully degrades."""
 
     def _make_llm_returning(self, raw_text: str):
-        """Return a mock LLM whose .invoke() produces raw_text as .content."""
-        from unittest.mock import MagicMock
+        """Return a mock LLM chain whose .invoke() produces raw_text as .content."""
         mock_result = MagicMock()
         mock_result.content = raw_text
-        mock_llm = MagicMock()
-        # The chain is prompt | llm; mock the pipe (__or__) chain
         mock_chain = MagicMock()
         mock_chain.invoke.return_value = mock_result
+        mock_llm = MagicMock()
         mock_llm.__or__ = MagicMock(return_value=mock_chain)
         return mock_llm
 
@@ -172,7 +170,7 @@ class TestLLMRerankerJsonParsing:
         assert set(result) == set(codes)
 
 
-# ── Non-product code blocking ──────────────────────────────────────────
+# ── Non-product code blocking ─────────────────────────────────────────────────
 
 class TestNonProductCodeBlocking:
     """Pure test-method standards must be blocked even when present in known_codes."""

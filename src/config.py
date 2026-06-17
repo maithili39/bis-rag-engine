@@ -18,9 +18,8 @@ EMBEDDING_MODEL = "all-mpnet-base-v2"  # HuggingFace sentence-transformers (768-
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 LLM_MODEL = "gpt-4o-mini"
 
-# Cross-encoder reranking (optional, improves ranking quality at ~90 MB download cost)
+# Cross-encoder reranking (optional — improves ranking quality at ~90 MB model download cost)
 # Enable with: USE_CROSS_ENCODER=1 python inference.py ...
-# Model: cross-encoder/ms-marco-MiniLM-L-6-v2 (fast, accurate, same torch dep already present)
 USE_CROSS_ENCODER = bool(os.getenv("USE_CROSS_ENCODER", ""))
 CROSS_ENCODER_MODEL = os.getenv("CROSS_ENCODER_MODEL", "cross-encoder/ms-marco-MiniLM-L-6-v2")
 
