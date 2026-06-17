@@ -126,8 +126,6 @@ def list_standards() -> dict:
     return {"standards": sorted(_pipeline.known_codes), "count": len(_pipeline.known_codes)}
 
 
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=False)
