@@ -36,8 +36,9 @@ MIN_CONFIDENCE_SCORE = 0.30  # Minimum hybrid score threshold. Results below thi
 CHROMA_PERSIST_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "chromadb")
 COLLECTION_NAME = "bis_standards"
 
-# PDF Dataset
-DATASET_PDF = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "dataset.pdf")
+# PDF Dataset configuration
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
+DATASET_PDF = os.path.join(DATA_DIR, "dataset.pdf")
 
 # Building Materials Categories
 BUILDING_MATERIALS_CATEGORIES = [

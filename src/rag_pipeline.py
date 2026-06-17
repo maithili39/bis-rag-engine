@@ -29,20 +29,31 @@ class BISRAGPipeline:
 
     def initialize_from_pdf(self, pdf_path: str = DATASET_PDF) -> None:
         """Initialize the pipeline by processing the BIS SP 21 PDF."""
-        print(f"\nProcessing PDF: {pdf_path}")
-        documents, known_codes = self.data_processor.process_pdf(pdf_path)
+        self.initialize_from_pdfs([pdf_path])
 
-        self.known_codes = known_codes
-        self.generator.set_known_codes(known_codes)
+    def initialize_from_pdfs(self, pdf_paths: List[str]) -> None:
+        """Initialize the pipeline by processing multiple BIS PDFs and merging them."""
+        all_documents = []
+        combined_known_codes = set()
+
+        for pdf_path in pdf_paths:
+            print(f"\nProcessing PDF: {pdf_path}")
+            pdf_source_name = os.path.basename(pdf_path)
+            documents, known_codes = self.data_processor.process_pdf(pdf_path, pdf_source_name)
+            all_documents.extend(documents)
+            combined_known_codes.update(known_codes)
+
+        self.known_codes = combined_known_codes
+        self.generator.set_known_codes(combined_known_codes)
 
         # Save known codes for later use
         codes_path = os.path.join(os.path.dirname(self.persist_dir), "known_codes.json")
         with open(codes_path, 'w', encoding='utf-8') as f:
-            json.dump(sorted(list(known_codes)), f, indent=2)
-        print(f"  Saved {len(known_codes)} known codes to {codes_path}")
+            json.dump(sorted(list(combined_known_codes)), f, indent=2)
+        print(f"  Saved {len(combined_known_codes)} known codes to {codes_path}")
 
-        print("\nBuilding vectorstore...")
-        self.retriever.build_vectorstore(documents)
+        print(f"\nBuilding vectorstore from {len(all_documents)} merged document chunks...")
+        self.retriever.build_vectorstore(all_documents)
 
         # Populate generator with all corpus titles (fixes hardcoded-15 limitation)
         self._sync_corpus_titles()

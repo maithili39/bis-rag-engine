@@ -13,13 +13,15 @@ This will:
 import os
 import sys
 import time
+import json
+import glob
 from pathlib import Path
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from rag_pipeline import BISRAGPipeline
-from config import CHROMA_PERSIST_DIR, DATASET_PDF
+from config import CHROMA_PERSIST_DIR, DATASET_PDF, DATA_DIR
 
 
 def main():
@@ -27,13 +29,15 @@ def main():
     print("BIS RAG Engine - Vectorstore Builder")
     print("=" * 60)
     
-    # Check for dataset
-    if not os.path.exists(DATASET_PDF):
-        print(f"\nERROR: Dataset PDF not found at: {DATASET_PDF}")
-        print("Please place the BIS SP 21 PDF at data/dataset.pdf")
+    # Scan for PDF files in the data directory (Phase 6)
+    pdf_files = glob.glob(os.path.join(DATA_DIR, "*.pdf"))
+    if not pdf_files:
+        print(f"\nERROR: No PDF files found in data directory: {DATA_DIR}")
         sys.exit(1)
 
-    print(f"\nDataset: {DATASET_PDF}")
+    print(f"\nFound {len(pdf_files)} PDF(s) to process:")
+    for pdf in pdf_files:
+        print(f"  - {os.path.basename(pdf)}")
     print(f"Output:  {CHROMA_PERSIST_DIR}")
     
     # Remove old vectorstore if exists
@@ -45,7 +49,7 @@ def main():
     # Build
     start = time.time()
     pipeline = BISRAGPipeline(persist_dir=CHROMA_PERSIST_DIR)
-    pipeline.initialize_from_pdf(DATASET_PDF)
+    pipeline.initialize_from_pdfs(pdf_files)
     elapsed = time.time() - start
     
     # Print stats

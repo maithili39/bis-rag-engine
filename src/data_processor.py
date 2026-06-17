@@ -92,6 +92,11 @@ class BISDataProcessor:
         # Split text at "SUMMARY OF" boundaries
         parts = re.split(r'(?=SUMMARY\s+OF\s*\n)', full_text, flags=re.IGNORECASE)
 
+        # Fallback split strategy for other PDFs (Phase 6)
+        if len(parts) <= 2:
+            print("  Fallback: Splitting by IS standard code boundaries")
+            parts = re.split(r'(?=IS\s+\d+\s*(?:\([^)]+\))?\s*:\s*\d{4})', full_text, flags=re.IGNORECASE)
+
         print(f"  Found {len(parts)} potential standard sections")
 
         for part in parts:
@@ -220,7 +225,7 @@ class BISDataProcessor:
         code = re.sub(r'part\s+', 'Part ', code, flags=re.IGNORECASE)
         return code
 
-    def create_documents_from_standards(self, standards: List[Dict[str, Any]]) -> List[Document]:
+    def create_documents_from_standards(self, standards: List[Dict[str, Any]], pdf_source_name: str = "BIS SP 21 : 2005") -> List[Document]:
         """Create LangChain Document objects from parsed standards."""
         documents = []
 
@@ -236,7 +241,7 @@ Title: {std['title']}
                 metadata={
                     "standard_code": std["code"],
                     "title": std["title"],
-                    "source": "BIS SP 21 : 2005"
+                    "source": pdf_source_name
                 }
             )
             documents.append(doc)
@@ -263,19 +268,22 @@ Title: {std['title']}
 
         return chunked
 
-    def process_pdf(self, pdf_path: str) -> Tuple[List[Document], set]:
+    def process_pdf(self, pdf_path: str, pdf_source_name: Optional[str] = None) -> Tuple[List[Document], set]:
         """
         Full pipeline: PDF -> parsed standards -> chunked documents.
         Returns (documents, all_known_codes).
         """
-        print("Step 1: Extracting text from PDF...")
+        if pdf_source_name is None:
+            pdf_source_name = os.path.basename(pdf_path)
+
+        print(f"Step 1: Extracting text from PDF {pdf_path}...")
         full_text = self.extract_pdf_text(pdf_path)
 
         print("Step 2: Parsing individual standards...")
         standards = self.extract_standards_from_text(full_text)
 
         print("Step 3: Creating document objects...")
-        documents = self.create_documents_from_standards(standards)
+        documents = self.create_documents_from_standards(standards, pdf_source_name)
 
         print("Step 4: Chunking documents...")
         chunked_docs = self.chunk_documents(documents)
@@ -284,14 +292,14 @@ Title: {std['title']}
 
         # Also create page-level chunks as fallback for standards we couldn't parse
         print("Step 5: Creating page-level fallback chunks...")
-        page_docs = self._create_page_level_chunks(full_text)
+        page_docs = self._create_page_level_chunks(full_text, pdf_source_name)
 
         all_docs = chunked_docs + page_docs
         print(f"  Total documents (standards + page chunks): {len(all_docs)}")
 
         return all_docs, self.all_standard_codes
 
-    def _create_page_level_chunks(self, full_text: str) -> List[Document]:
+    def _create_page_level_chunks(self, full_text: str, pdf_source_name: str = "BIS SP 21 : 2005") -> List[Document]:
         """Create page-level chunks as fallback for better coverage."""
         # Split text into ~1000 char segments with overlap
         splitter = RecursiveCharacterTextSplitter(
@@ -302,7 +310,7 @@ Title: {std['title']}
 
         doc = Document(
             page_content=full_text,
-            metadata={"source": "BIS SP 21 : 2005", "type": "page_chunk"}
+            metadata={"source": pdf_source_name, "type": "page_chunk"}
         )
 
         chunks = splitter.split_documents([doc])
