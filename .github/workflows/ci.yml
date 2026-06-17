@@ -25,3 +25,16 @@ jobs:
 
       - name: Run tests (schema + unit, no vectorstore needed)
         run: pytest tests/ -v --tb=short -k "not retrieval"
+
+      - name: Run API tests (mocked pipeline)
+        run: pytest tests/test_api.py -v --tb=short
+
+      - name: Build Docker image
+        run: docker build -t bis-rag-engine .
+
+      - name: Smoke-test /health
+        run: |
+          docker run -d -p 8000:8000 --name bis_test bis-rag-engine
+          sleep 5
+          curl -f http://localhost:8000/health || exit 1
+          docker stop bis_test

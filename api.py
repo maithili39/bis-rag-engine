@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 from contextlib import asynccontextmanager
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -55,12 +55,31 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Configure CORS using environment variable, default to allowing all
+cors_origins_env = os.getenv("CORS_ORIGINS", "*")
+cors_origins = [origin.strip() for origin in cors_origins_env.split(",")] if cors_origins_env else ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
+    allow_credentials=True,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+# Add X-Process-Time header for latency visibility
+import time
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(round(process_time, 4))
+    return response
+
+# TODO: Add rate limiting for production
+# Full implementation requires slowapi (e.g. @limiter.limit("10/minute"))
+# Deferred unless specifically requested for the hackathon.
 
 
 class QueryRequest(BaseModel):
