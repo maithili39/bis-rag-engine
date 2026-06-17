@@ -13,7 +13,6 @@ This will:
 import os
 import sys
 import time
-import json
 from pathlib import Path
 
 # Add src to path
@@ -59,6 +58,41 @@ def main():
     print(f"Known standards  : {stats['known_standards']}")
     print(f"Persist dir      : {CHROMA_PERSIST_DIR}")
     print(f"{'=' * 60}")
+
+    # ── Diff known_codes.json against any previously committed version ───────
+    codes_path = os.path.join(os.path.dirname(CHROMA_PERSIST_DIR), "known_codes.json")
+    old_codes_path = codes_path + ".old"
+    if os.path.exists(old_codes_path):
+        with open(old_codes_path, encoding="utf-8") as f:
+            old_codes = set(json.load(f))
+        with open(codes_path, encoding="utf-8") as f:
+            new_codes = set(json.load(f))
+
+        added = sorted(new_codes - old_codes)
+        removed = sorted(old_codes - new_codes)
+
+        print(f"\n--- known_codes.json diff (vs .old backup) ---")
+        if added:
+            print(f"  + {len(added)} added:")
+            for c in added[:20]:
+                print(f"      + {c}")
+            if len(added) > 20:
+                print(f"      ... and {len(added) - 20} more")
+        if removed:
+            print(f"  - {len(removed)} removed:")
+            for c in removed[:20]:
+                print(f"      - {c}")
+            if len(removed) > 20:
+                print(f"      ... and {len(removed) - 20} more")
+        if not added and not removed:
+            print("  No changes (artifacts were already clean).")
+        print("----------------------------------------------")
+    else:
+        # Back up the old file before first clean build so the diff works next time
+        import shutil as _shutil
+        if os.path.exists(codes_path):
+            _shutil.copy2(codes_path, old_codes_path)
+            print(f"\n(Backed up previous known_codes.json to {old_codes_path})")
     
     # Quick test
     print("\n--- Quick Test ---")

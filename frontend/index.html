@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIS Standards Recommendation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="top-header">
+        <div class="header-content">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 2L12 22"></path>
+                        <path d="M2 12L22 12"></path>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>Bureau of Indian Standards</h1>
+                    <p>STANDARDS RECOMMENDATION ENGINE &middot; SP 21 : 2005 BUILDING MATERIALS HANDBOOK</p>
+                </div>
+            </div>
+            <button class="portal-btn">IS Portal v2.0</button>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <ul>
+            <li class="active">STANDARDS SEARCH</li>
+            <li>BROWSE CATALOGUE</li>
+            <li>IS AMENDMENTS</li>
+            <li>CERTIFICATION</li>
+            <li>HELP &amp; DOCS</li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+        
+        <div class="breadcrumbs">
+            <span>Home</span> &gt; <span>Standards Search</span> &gt; <span class="current">Recommend Standards</span>
+        </div>
+
+        <div class="page-title-section">
+            <h2>Standards Recommendation</h2>
+            <span class="badge">AI-POWERED</span>
+        </div>
+
+        <section class="search-section">
+            <label for="product-query" class="input-label">DESCRIBE YOUR PRODUCT, MATERIAL, OR PROCESS</label>
+            <textarea id="product-query" rows="3" placeholder="e.g. 'We are setting up a 53-grade OPC plant — which BIS standard applies?'"></textarea>
+            <button id="search-btn" class="primary-btn">
+                <span class="btn-text">Search Standards</span>
+                <span class="spinner hidden"></span>
+            </button>
+        </section>
+
+        <!-- Results Section (Hidden initially) -->
+        <section id="results-container" class="results-container hidden">
+            <div class="results-header">
+                <p id="results-meta" class="results-meta"></p>
+            </div>
+            <div id="standards-list" class="standards-list">
+                <!-- Standards cards will be injected here -->
+            </div>
+            
+            <div class="rationale-box">
+                <div class="rationale-title">Why these?</div>
+                <p id="rationale-text"></p>
+            </div>
+        </section>
+
+        <!-- Error Section -->
+        <section id="error-container" class="error-container hidden">
+            <p id="error-text"></p>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p>Bureau of Indian Standards &middot; Manak Bhavan, 9 Bahadur Shah Zafar Marg, New Delhi 110002</p>
+            <p class="footer-right">BIS knowledge base loads on demand &middot; Hybrid retrieval: BM25 + TF-IDF + Sentence-Transformers</p>
+        </div>
+    </footer>
+
+    <script src="/script.js"></script>
+</body>
+</html>

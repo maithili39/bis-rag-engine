@@ -5,7 +5,6 @@ Command: python inference.py --input hidden_private_dataset.json --output team_r
 
 import json
 import argparse
-import time
 import sys
 import os
 from pathlib import Path

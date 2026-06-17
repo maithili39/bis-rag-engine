@@ -1,8 +1,6 @@
 """Data processing and chunking for BIS SP 21 standards documents."""
 
-import os
 import re
-import sys
 import warnings
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -10,9 +8,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pypdf import PdfReader
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-from config import CHUNK_SIZE, CHUNK_OVERLAP  # noqa: E402
+from config import CHUNK_SIZE, CHUNK_OVERLAP
 
 warnings.filterwarnings("ignore")
 
@@ -45,18 +41,35 @@ class BISDataProcessor:
     def extract_pdf_text(self, pdf_path: str) -> str:
         """Extract full text from the BIS SP 21 PDF."""
         print(f"  Reading PDF: {pdf_path}")
-        reader = PdfReader(pdf_path)
-        print(f"  Total pages: {len(reader.pages)}")
+        try:
+            reader = PdfReader(pdf_path)
+        except Exception as e:
+            raise RuntimeError(f"Failed to open PDF at {pdf_path}: {e}") from e
+
+        total_pages = len(reader.pages)
+        print(f"  Total pages: {total_pages}")
+        if total_pages == 0:
+            raise RuntimeError(f"PDF at {pdf_path} has no pages — file may be corrupt or encrypted.")
 
         full_text = ""
+        failed_pages = []
         for i, page in enumerate(reader.pages):
             try:
                 text = page.extract_text()
                 if text:
                     full_text += text + "\n\n"
             except Exception as e:
+                failed_pages.append(i + 1)
                 print(f"  Warning: Could not extract page {i+1}: {e}")
-                continue
+
+        if failed_pages:
+            print(f"  Warning: {len(failed_pages)}/{total_pages} pages failed extraction: {failed_pages[:10]}")
+
+        if len(full_text) < 1000:
+            raise RuntimeError(
+                f"PDF text extraction yielded only {len(full_text)} characters — "
+                "the PDF may be scanned/image-only. Use an OCR tool (e.g. pdfminer with OCR) first."
+            )
 
         print(f"  Extracted {len(full_text)} characters of text")
         return full_text
@@ -90,6 +103,13 @@ class BISDataProcessor:
             if std_info:
                 standards.append(std_info)
                 self.all_standard_codes.add(std_info["code"])
+
+        if len(standards) < 10:
+            print(
+                f"  WARNING: Only {len(standards)} standards parsed from 'SUMMARY OF' markers. "
+                "The PDF layout may differ from BIS SP 21 : 2005. "
+                "Page-level fallback chunks will be used for coverage."
+            )
 
         # Also do a global scan for any IS codes we might have missed
         all_codes = set(self.STANDARD_PATTERN.findall(full_text))
@@ -175,11 +195,15 @@ class BISDataProcessor:
 
         The 'part_info' capture group sometimes already contains the word
         'Part' (e.g. 'Part 2'), so we must not prepend it again — doing so
-        produced malformed codes like 'IS 2185 (Part Part 2): 1983'.
+        produced malformed codes like 'IS 2185 (Part Part 2): 1983'. A
+        plain `startswith` check (rather than a `\\bpart\\b` regex) is used
+        because `\\b` does not match between "Part" and a directly-adjacent
+        digit/letter (e.g. "PART11", "Part1"), which let those cases slip
+        through and get double-prefixed.
         """
         if part_info and part_info.strip():
             pi = part_info.strip()
-            if not re.match(r'part\b', pi, flags=re.IGNORECASE):
+            if not pi.lower().startswith('part'):
                 pi = f"Part {pi}"
             code = f"IS {num} ({pi}): {year}"
         else:
@@ -234,7 +258,7 @@ Title: {std['title']}
                     # Prepend the standard code to each chunk for better retrieval
                     chunk.page_content = f"[{doc.metadata['standard_code']}] {doc.metadata['title']}\n{chunk.page_content}"
                     chunk.metadata = doc.metadata.copy()
-                chunked.append(doc)  # Always keep the original too
+                # Fix #2: only keep chunks, not the original doc (avoids duplicate bias)
                 chunked.extend(chunks)
 
         return chunked

@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+
+  # Step 1: Run this ONCE to build the vectorstore from the PDF
+  # docker compose run --rm build
+  build:
+    build: .
+    command: python build_vectorstore.py
+    volumes:
+      - ./data:/app/data          # put dataset.pdf here
+      - ./chromadb:/app/chromadb  # vectorstore saved here
+      - ./.env:/app/.env
+    profiles: ["build"]
+
+  # Step 2: Start the API (after build is done)
+  # docker compose up api
+  api:
+    build: .
+    command: python api.py
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data          # read-only at runtime
+      - ./chromadb:/app/chromadb  # pre-built vectorstore
+      - ./known_codes.json:/app/known_codes.json
+      - ./.env:/app/.env
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

@@ -8,9 +8,8 @@ needed), installs and deploys anywhere, and starts up in well under a second.
 """
 
 import hashlib
+import json
 import os
-import pickle
-import sys
 import time
 import warnings
 from typing import Any, Dict, List, Tuple
@@ -22,8 +21,15 @@ from rank_bm25 import BM25Okapi
 
 warnings.filterwarnings("ignore")
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from config import BM25_WEIGHT, CHROMA_PERSIST_DIR, EMBEDDING_MODEL, MIN_CONFIDENCE_SCORE, SEMANTIC_WEIGHT, TOP_K_RETRIEVAL  # noqa: E402
+from config import BM25_WEIGHT, CHROMA_PERSIST_DIR, CROSS_ENCODER_MODEL, EMBEDDING_MODEL, MIN_CONFIDENCE_SCORE, SEMANTIC_WEIGHT, TOP_K_RETRIEVAL, USE_CROSS_ENCODER
+
+# Common English + technical stopwords to improve BM25 signal
+_STOPWORDS = frozenset({
+    "a", "an", "the", "and", "or", "of", "for", "to", "in", "is", "are",
+    "be", "by", "on", "with", "this", "that", "from", "as", "at", "its",
+    "it", "which", "we", "our", "their", "all", "any", "not", "but",
+    "have", "has", "been", "shall", "should", "may", "used", "use",
+})
 
 
 class BISRetriever:
@@ -35,7 +41,7 @@ class BISRetriever:
     """
 
     EMBEDDINGS_FILE = "embeddings.npy"
-    STORE_FILE = "store.pkl"
+    STORE_FILE = "store.json"
 
     def __init__(self, persist_dir: str = CHROMA_PERSIST_DIR):
         self.persist_dir = persist_dir
@@ -51,6 +57,15 @@ class BISRetriever:
         self.retrieval_times: List[float] = []
         self._embeddings_path = os.path.join(persist_dir, self.EMBEDDINGS_FILE)
         self._store_path = os.path.join(persist_dir, self.STORE_FILE)
+        # Cross-encoder: loaded lazily on first use to avoid startup cost
+        self._cross_encoder = None
+        if USE_CROSS_ENCODER:
+            try:
+                from sentence_transformers import CrossEncoder
+                self._cross_encoder = CrossEncoder(CROSS_ENCODER_MODEL)
+                print(f"  Cross-encoder loaded: {CROSS_ENCODER_MODEL}")
+            except Exception as e:
+                print(f"  Warning: could not load cross-encoder ({e}). Falling back to hybrid ranking.")
 
     # ------------------------------------------------------------------ #
     # Build / persist / load                                             #
@@ -68,21 +83,23 @@ class BISRetriever:
         )
         self.all_documents = documents
 
-        tokenized_docs = [text.lower().split() for text in texts]
+        tokenized_docs = [self._tokenize(text) for text in texts]
         self.bm25 = BM25Okapi(tokenized_docs)
 
         os.makedirs(self.persist_dir, exist_ok=True)
         np.save(self._embeddings_path, self.doc_embeddings)
-        with open(self._store_path, "wb") as f:
-            pickle.dump(
-                {
-                    "documents": [(d.page_content, d.metadata) for d in documents],
-                    "bm25": self.bm25,
-                    "embedding_model": EMBEDDING_MODEL,
-                },
-                f,
-                protocol=pickle.HIGHEST_PROTOCOL,
-            )
+        # JSON store — portable, human-readable, no pickle security risk
+        store = {
+            "embedding_model": EMBEDDING_MODEL,
+            "documents": [
+                {"page_content": d.page_content, "metadata": d.metadata}
+                for d in documents
+            ],
+            # BM25 only needs tokenized corpus; we rebuild the index on load
+            "tokenized_docs": tokenized_docs,
+        }
+        with open(self._store_path, "w", encoding="utf-8") as f:
+            json.dump(store, f, ensure_ascii=False)
 
         print(f"  Vectorstore persisted to {self.persist_dir}")
         print(f"  Indexed {len(documents)} documents ({self.doc_embeddings.shape[1]}-dim)")
@@ -92,13 +109,28 @@ class BISRetriever:
         if not (os.path.exists(self._embeddings_path) and os.path.exists(self._store_path)):
             return False
         try:
+            with open(self._store_path, "r", encoding="utf-8") as f:
+                store = json.load(f)
+
+            # Model version guard — stale embeddings from a different model are wrong
+            saved_model = store.get("embedding_model", "")
+            if saved_model != EMBEDDING_MODEL:
+                print(
+                    f"  WARNING: Vectorstore was built with '{saved_model}' "
+                    f"but current config uses '{EMBEDDING_MODEL}'. Rebuilding required."
+                )
+                return False
+
             self.doc_embeddings = np.load(self._embeddings_path)
-            with open(self._store_path, "rb") as f:
-                store = pickle.load(f)
             self.all_documents = [
-                Document(page_content=t, metadata=m) for t, m in store["documents"]
+                Document(page_content=d["page_content"], metadata=d["metadata"])
+                for d in store["documents"]
             ]
-            self.bm25 = store["bm25"]
+            tokenized_docs = store.get("tokenized_docs") or [
+                self._tokenize(d.page_content) for d in self.all_documents
+            ]
+            self.bm25 = BM25Okapi(tokenized_docs)
+
             if len(self.all_documents) == 0 or self.doc_embeddings.shape[0] == 0:
                 return False
             print(f"  Loaded vectorstore with {len(self.all_documents)} documents")
@@ -110,6 +142,12 @@ class BISRetriever:
     # ------------------------------------------------------------------ #
     # Retrieval                                                          #
     # ------------------------------------------------------------------ #
+
+    @staticmethod
+    def _tokenize(text: str) -> List[str]:
+        """Tokenize text for BM25 with stopword removal."""
+        tokens = text.lower().split()
+        return [t for t in tokens if t not in _STOPWORDS and len(t) > 1]
 
     def _embed_query(self, query: str) -> np.ndarray:
         return np.asarray(self.embeddings.embed_query(query), dtype=np.float32)
@@ -152,6 +190,21 @@ class BISRetriever:
         # Filter by confidence threshold, then take top-k
         filtered = [(i, s) for i, s in ranked if s >= MIN_CONFIDENCE_SCORE][:k]
         results = [(self.all_documents[i], float(1.0 - s)) for i, s in filtered]
+
+        # Optional cross-encoder reranking: scores (query, doc) pairs jointly
+        if self._cross_encoder is not None and results:
+            try:
+                pairs = [(query, doc.page_content[:512]) for doc, _ in results]
+                ce_scores = self._cross_encoder.predict(pairs)
+                # Re-sort by cross-encoder score descending; preserve (doc, dist) shape
+                reranked = sorted(
+                    zip(results, ce_scores),
+                    key=lambda x: -x[1],
+                )
+                results = [item for item, _ in reranked]
+            except Exception as e:
+                print(f"  Warning: cross-encoder reranking failed ({e}), using hybrid order.")
+
         latency = time.time() - start
         self.retrieval_times.append(latency)
         return results, latency
@@ -171,7 +224,7 @@ class BISRetriever:
             else np.zeros_like(semantic)
         )
 
-        bm25_scores = np.asarray(self.bm25.get_scores(query.lower().split()), dtype=np.float32)
+        bm25_scores = np.asarray(self.bm25.get_scores(self._tokenize(query)), dtype=np.float32)
         bm25_max = float(bm25_scores.max()) if bm25_scores.size else 0.0
         bm25_norm = bm25_scores / bm25_max if bm25_max > 0 else np.zeros_like(bm25_scores)
 

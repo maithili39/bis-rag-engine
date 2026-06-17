@@ -1,17 +1,16 @@
 """Main RAG pipeline orchestrating retrieval and recommendation generation."""
 
 import os
-import sys
 import time
 import json
 from typing import List, Dict, Any, Tuple, Set
-
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from data_processor import BISDataProcessor
 from retriever import BISRetriever
 from llm_generator import RecommendationGenerator
 from config import TOP_K_RESULTS, TOP_K_RETRIEVAL, CHROMA_PERSIST_DIR, DATASET_PDF
+
+_MAX_HISTORY = 1000
 
 
 class BISRAGPipeline:
@@ -26,7 +25,7 @@ class BISRAGPipeline:
         self.retriever = BISRetriever(persist_dir=persist_dir)
         self.generator = RecommendationGenerator()
         self.known_codes: Set[str] = set()
-        self.query_history = []
+        self.query_history: List[Dict[str, Any]] = []
 
     def initialize_from_pdf(self, pdf_path: str = DATASET_PDF) -> None:
         """Initialize the pipeline by processing the BIS SP 21 PDF."""
@@ -44,6 +43,9 @@ class BISRAGPipeline:
 
         print("\nBuilding vectorstore...")
         self.retriever.build_vectorstore(documents)
+
+        # Populate generator with all corpus titles (fixes hardcoded-15 limitation)
+        self._sync_corpus_titles()
         print("Pipeline initialized successfully!")
 
     def load_existing_vectorstore(self) -> bool:
@@ -57,6 +59,8 @@ class BISRAGPipeline:
                     self.known_codes = set(json.load(f))
                 self.generator.set_known_codes(self.known_codes)
                 print(f"  Loaded {len(self.known_codes)} known standard codes")
+            # Populate generator with all corpus titles
+            self._sync_corpus_titles()
         return loaded
 
     def process_query(self, query: str, top_k: int = TOP_K_RESULTS) -> Tuple[List[str], str, float]:
@@ -81,12 +85,14 @@ class BISRAGPipeline:
 
         total_latency = time.time() - pipeline_start
 
-        # Track history
+        # Track history (capped to avoid unbounded memory growth)
         self.query_history.append({
             "query": query,
             "results": codes,
-            "latency": total_latency
+            "latency": total_latency,
         })
+        if len(self.query_history) > _MAX_HISTORY:
+            self.query_history = self.query_history[-_MAX_HISTORY:]
 
         return codes, rationale, total_latency
 
@@ -139,6 +145,17 @@ class BISRAGPipeline:
             latencies = [q["latency"] for q in self.query_history]
             stats["avg_pipeline_latency"] = sum(latencies) / len(latencies)
         return stats
+
+    def _sync_corpus_titles(self) -> None:
+        """Build code→title map from all indexed documents and pass to the generator."""
+        code_to_title: Dict[str, str] = {}
+        for doc in self.retriever.all_documents:
+            code = doc.metadata.get("standard_code", "")
+            title = doc.metadata.get("title", "")
+            if code and title and code not in code_to_title:
+                code_to_title[code] = title
+        self.generator.set_corpus_titles(code_to_title)
+        print(f"  Synced {len(code_to_title)} standard titles to generator")
 
     def reset_history(self) -> None:
         """Reset query history."""

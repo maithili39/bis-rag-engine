@@ -50,7 +50,6 @@ Evaluated on the public 10-query test set using the official `eval_script.py`.
 - **PDF parsing is fragile.** The SP 21 PDF has a malformed internal structure. pypdf emits 6000+ warnings and some standards may be missed or split incorrectly. A cleaner data source or a dedicated table-of-contents parser would help.
 - **Rule-based rationale is weak.** The "Why these?" explanation uses keyword matching against a hardcoded dictionary of ~15 standards. It breaks silently for any standard not in that dictionary.
 - **Coverage is narrow.** Only Building Materials (cement, concrete, aggregates) from SP 21: 2005. Expanding to other BIS categories or newer standards would make it genuinely production-useful.
-- **No confidence threshold.** The system always returns 5 results even if all scores are low. A confidence cutoff that returns fewer (or zero) results when the query is out of domain would be more honest.
 
 ---
 
@@ -100,8 +99,9 @@ Key design choices:
 | Keyword search | `rank-bm25` | Critical for exact IS code and technical term matching |
 | Vector index | NumPy | No compiler needed, fast enough for this corpus size |
 | PDF parsing | `pypdf` | Pure Python, no system dependencies |
-| LLM reranking (optional) | OpenAI `gpt-3.5-turbo` | Only for the UI "Why these?" explanation — not used in inference |
-| Web UI | Streamlit | Fast to build, deploys directly to HF Spaces |
+| LLM reranking (optional) | OpenAI `gpt-4o-mini` | Only for the UI "Why these?" explanation — not used in inference |
+| REST API | FastAPI + Uvicorn | Serves `/query`, `/health`, `/standards` endpoints + static frontend |
+| Web UI | Vanilla HTML/CSS/JS (served by FastAPI) | HF Spaces entry point uses Streamlit (`app.py`) |
 
 ---
 
@@ -123,7 +123,8 @@ bis-rag-engine/
 ├── build_vectorstore.py    # One-time setup: PDF -> embeddings
 ├── inference.py            # Batch inference entry point
 ├── eval_script.py          # Official evaluation script (unmodified)
-├── app.py                  # Streamlit UI (HF Spaces entry point)
+├── run_extended_eval.py    # Extended A/B evaluation runner
+├── api.py                  # FastAPI server + serves frontend/
 └── requirements.txt
 ```
 
@@ -171,9 +172,9 @@ All hyperparameters are in `src/config.py`:
 | `BM25_WEIGHT` | `0.6` | Weight of BM25 keyword score |
 | `TOP_K_RETRIEVAL` | `12` | Candidates fetched before reranking |
 | `TOP_K_RESULTS` | `5` | Final standards returned per query |
+| `MIN_CONFIDENCE_SCORE` | `0.30` | Minimum hybrid score to include a result (tune down for recall, up for precision) |
 | `CHUNK_SIZE` | `1000` | Characters per document chunk |
 | `CHUNK_OVERLAP` | `250` | Overlap between adjacent chunks |
-| `MIN_CONFIDENCE_SCORE` | `0.30` | Minimum hybrid score threshold for results |
 
 ---
 

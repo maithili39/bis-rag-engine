@@ -1,5 +1,5 @@
 """Tests for BISDataProcessor — parsing, normalisation, chunking."""
-import sys, os
+import sys, os, re
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 import pytest
@@ -40,6 +40,32 @@ class TestFormatCode:
     def test_normalize_colon_spacing(self, processor):
         code = processor._normalize_code("IS 383:1970")
         assert code == "IS 383: 1970"
+
+    # Regression tests: pypdf sometimes drops the space between "Part" and the
+    # number/letter that follows (e.g. "(PART11)" instead of "(Part 11)"). A
+    # `\bpart\b`-based guard doesn't catch this because \b never matches between
+    # two word characters ("t" and "1" are both \w), so these slipped through
+    # and got double-prefixed to "Part PART11". The guard must use a plain
+    # startswith check instead.
+    def test_part_info_no_space_uppercase(self, processor):
+        code = processor._format_code("10124", "PART11", "1988")
+        assert code == "IS 10124 (PART11): 1988"
+        assert len(re.findall(r"part", code, re.IGNORECASE)) == 1
+
+    def test_part_info_no_space_titlecase(self, processor):
+        code = processor._format_code("1367", "Part1", "2002")
+        assert code == "IS 1367 (Part1): 2002"
+        assert len(re.findall(r"part", code, re.IGNORECASE)) == 1
+
+    def test_part_info_roman_numeral_no_space(self, processor):
+        code = processor._format_code("432", "PARTII", "1982")
+        assert len(re.findall(r"part", code, re.IGNORECASE)) == 1
+
+    def test_part_info_plural_parts(self, processor):
+        # "(Parts 1 to 10)" must not become "Part Parts 1 to 10"
+        code = processor._format_code("191", "Parts 1 to 10", "1980")
+        assert "IS 191 (Parts 1 to 10): 1980" == code
+        assert len(re.findall(r"part", code, re.IGNORECASE)) == 1
 
 
 # ── Standard section parsing ──────────────────────────────────────────────────
@@ -87,3 +113,56 @@ class TestCreateDocuments:
         for chunk in chunks:
             # Every chunk must carry the parent standard's code
             assert chunk.metadata.get("standard_code") == "IS 383: 1970"
+
+
+# ── known_codes.json whitelist integrity ─────────────────────────────────────
+
+KNOWN_CODES_PATH = os.path.join(os.path.dirname(__file__), "..", "known_codes.json")
+
+
+@pytest.mark.skipif(not os.path.exists(KNOWN_CODES_PATH), reason="known_codes.json not built yet")
+class TestKnownCodesJson:
+    """Validate the committed known_codes.json whitelist has no data corruption.
+
+    These tests FAIL on the current stale artifacts (built before the
+    _format_code startswith fix) and PASS after the vectorstore is rebuilt.
+    That is the intended behaviour — the failures surface the corruption.
+    """
+
+    @pytest.fixture(scope="class")
+    def codes(self):
+        with open(KNOWN_CODES_PATH, encoding="utf-8") as f:
+            return json.load(f)
+
+    def test_no_part_part_in_whitelist(self, codes):
+        bad = [c for c in codes if "Part Part" in c or "PART Part" in c]
+        assert not bad, (
+            f"'Part Part' double-prefix corruption found in known_codes.json:\n"
+            + "\n".join(bad)
+        )
+
+    def test_no_duplicate_normalized_codes(self, codes):
+        """Detects pairs like ('IS 10124 (PART11): 1988', 'IS 10124 (Part 11): 1988').
+        After a clean rebuild these normalize to the same string — duplicates are gone.
+        """
+        import collections
+
+        def _norm(c):
+            return c.replace(" ", "").lower()
+
+        counts = collections.Counter(_norm(c) for c in codes)
+        dupes = {k: v for k, v in counts.items() if v > 1}
+        if dupes:
+            # Build human-readable list: show which original entries collapsed
+            detail = []
+            for norm_key in sorted(dupes):
+                originals = [c for c in codes if _norm(c) == norm_key]
+                detail.append(f"  {norm_key!r}: {originals}")
+            pytest.fail(
+                f"{len(dupes)} duplicate normalized code(s) found in known_codes.json "
+                f"(rebuild vectorstore to fix):\n" + "\n".join(detail)
+            )
+
+    def test_all_codes_valid_format(self, codes):
+        bad = [c for c in codes if not re.match(r"IS\s+\d+", c, re.IGNORECASE)]
+        assert not bad, f"Non-IS-format entries in known_codes.json: {bad[:10]}"
