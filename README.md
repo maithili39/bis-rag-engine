@@ -1,3 +1,13 @@
+---
+title: BIS Standards Finder
+colorFrom: green
+colorTo: orange
+sdk: streamlit
+sdk_version: "1.45.0"
+app_file: streamlit_app.py
+pinned: true
+---
+
 # BIS Standards Recommendation Engine
 
 A RAG (Retrieval-Augmented Generation) system that maps manufacturing product descriptions to the correct **Bureau of Indian Standards (BIS)** codes. Built for the **BIS × Startup Studio Hackathon 2026**.
