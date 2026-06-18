@@ -15,7 +15,7 @@ st.set_page_config(
     page_title="BIS Standards Recommendation",
     page_icon="📋",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # Custom Premium Styling (Forest Green & Orange Theme)
@@ -24,6 +24,9 @@ st.markdown("""
     /* Hide Default Streamlit Style Elements */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
+    /* Hide sidebar and its toggle button */
+    [data-testid="stSidebar"] {display: none !important;}
+    [data-testid="collapsedControl"] {display: none !important;}
 
     /* Prevent page-level overflow / extra scroll */
     html, body, [data-testid="stAppViewContainer"] {
@@ -202,15 +205,20 @@ st.markdown("""
         background-color: var(--white) !important;
     }
 
-    .sidebar-section-title {
-        font-size: 0.8rem;
+    /* Sample queries row */
+    .sample-queries-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+    .sample-label {
+        font-size: 0.78rem;
         font-weight: 700;
-        color: var(--accent);
-        border-left: 3px solid var(--accent);
-        padding-left: 0.6rem;
-        margin-top: 1.5rem;
-        margin-bottom: 1rem;
+        color: #666;
+        text-transform: uppercase;
         letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
     }
 
     /* Card Styling */
@@ -341,10 +349,7 @@ except Exception as e:
 if "query_input" not in st.session_state:
     st.session_state["query_input"] = ""
 
-# Sidebar Layout
 top_k = 5
-
-st.sidebar.markdown('<div class="sidebar-section-title">SAMPLE QUERIES</div>', unsafe_allow_html=True)
 
 samples = [
     "33 Grade OPC cement",
@@ -353,21 +358,6 @@ samples = [
     "White Portland Cement",
     "Reinforced Concrete aggregates"
 ]
-
-for sample in samples:
-    if st.sidebar.button(sample, key=f"sample_{sample}", use_container_width=True):
-        st.session_state["query_input"] = sample
-        st.rerun()
-
-# ── Sidebar scope info ────────────────────────────────────────────────────────
-st.sidebar.markdown("---")
-st.sidebar.markdown('<div class="sidebar-section-title">KNOWLEDGE BASE SCOPE</div>', unsafe_allow_html=True)
-st.sidebar.info(
-    "📖 **Source:** BIS SP 21 : 2005\n\n"
-    "🗓️ **Standards up to:** 2005\n\n"
-    "🏗️ **Domain:** Building Materials only\n\n"
-    "**Covers:** Cement · Concrete · Aggregates · Bricks · Tiles · Steel · Glass · Timber · Pipes · Waterproofing · Paints · Insulation"
-)
 
 # ── Main content ──────────────────────────────────────────────────────────────
 st.markdown('<div class="breadcrumbs">Home &gt; Standards Search &gt; <span class="current">Recommend Standards</span></div>', unsafe_allow_html=True)
@@ -399,6 +389,15 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
+# Sample queries inline
+st.markdown('<div class="sample-label">Try a sample query:</div>', unsafe_allow_html=True)
+cols = st.columns(len(samples))
+for i, sample in enumerate(samples):
+    with cols[i]:
+        if st.button(sample, key=f"sample_{sample}", use_container_width=True):
+            st.session_state["query_input"] = sample
+            st.rerun()
 
 # Search Input Section
 st.write("**DESCRIBE YOUR PRODUCT, MATERIAL, OR PROCESS**")
