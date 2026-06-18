@@ -1,7 +1,7 @@
 ---
 title: BIS Standards Finder
 colorFrom: green
-colorTo: orange
+colorTo: yellow
 sdk: streamlit
 sdk_version: "1.45.0"
 app_file: streamlit_app.py
