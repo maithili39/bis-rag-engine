@@ -62,3 +62,8 @@ outputs/
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs and temp files
+*.log
+*.old
+st_*.log
