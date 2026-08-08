@@ -34,24 +34,18 @@ st.markdown("""
     :root {
         --bg-deep: #ffffff;
         --bg-panel: #f8f9fa;
-        --accent: #4f46e5;
-        --accent-2: #4338ca;
-        --accent-warm: #2563eb;
+        --accent: #b45309;
+        --accent-2: #92400e;
+        --accent-tint: #fef3e2;
         --text-dim: #6b7280;
         --border-color: rgba(0,0,0,0.08);
         --white: #ffffff;
-        --glass: rgba(255,255,255,0.7);
     }
 
     [data-testid="stAppViewContainer"], .stApp {
-        background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%) !important;
+        background: #ffffff !important;
         color: #1f2937;
-        font-family: 'Inter', 'Segoe UI', sans-serif;
-    }
-
-    @keyframes floatGlow {
-        0%, 100% { transform: translate(0, 0) scale(1); }
-        50% { transform: translate(20px, -20px) scale(1.05); }
+        font-family: 'Segoe UI', -apple-system, sans-serif;
     }
 
     .block-container {
@@ -110,8 +104,9 @@ st.markdown("""
     }
 
     .logo-text h1 {
+        font-family: Georgia, 'Times New Roman', serif;
         font-size: 1.9rem;
-        font-weight: 800;
+        font-weight: 700;
         margin: 0;
         color: #1f2937;
         letter-spacing: -0.01em;
@@ -154,10 +149,7 @@ st.markdown("""
 
     .main-nav li.active {
         color: #1f2937;
-    }
-
-    .main-nav li.active::after {
-        display: none;
+        border-bottom: 2px solid var(--accent);
     }
 
     /* Breadcrumbs */
@@ -189,22 +181,22 @@ st.markdown("""
     }
 
     .badge {
-        background: #f3f4f6;
-        color: #6b7280;
+        background: var(--accent-tint);
+        color: var(--accent-2);
         font-size: 0.7rem;
         font-weight: 700;
         padding: 0.3rem 0.7rem;
-        border-radius: 20px;
+        border-radius: 4px;
         letter-spacing: 0.05em;
-        border: 1px solid #d1d5db;
+        border: 1px solid #f3d9ae;
     }
 
     /* Scope Info Banner */
     .scope-banner {
         background: #f9fafb;
         border: 1px solid #e5e7eb;
-        border-left: 4px solid #d1d5db;
-        border-radius: 12px;
+        border-left: 4px solid var(--accent);
+        border-radius: 4px;
         padding: 1rem 1.4rem;
         margin-bottom: 1.5rem;
         font-size: 0.84rem;
@@ -246,26 +238,26 @@ st.markdown("""
         background: #ffffff !important;
         color: #374151 !important;
         border: 1px solid #d1d5db !important;
-        border-radius: 10px !important;
+        border-radius: 4px !important;
         font-weight: 600 !important;
-        transition: all 0.2s ease !important;
+        transition: border-color 0.15s ease, color 0.15s ease !important;
     }
     .stButton > button:hover {
-        border-color: #9ca3af !important;
-        color: #1f2937 !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
-        transform: translateY(-1px);
+        border-color: var(--accent) !important;
+        color: var(--accent-2) !important;
+        box-shadow: none !important;
+        transform: none;
     }
     .stButton > button[kind="primary"] {
-        background: #1f2937 !important;
+        background: var(--accent) !important;
         color: white !important;
         border: none !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        box-shadow: none !important;
     }
     .stButton > button[kind="primary"]:hover {
-        background: #111827 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-        transform: translateY(-2px);
+        background: var(--accent-2) !important;
+        box-shadow: none !important;
+        transform: none;
     }
 
     /* Text area */
@@ -273,11 +265,11 @@ st.markdown("""
         background: #ffffff !important;
         color: #1f2937 !important;
         border: 1px solid #d1d5db !important;
-        border-radius: 12px !important;
+        border-radius: 6px !important;
     }
     .stTextArea textarea:focus {
-        border-color: #9ca3af !important;
-        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05) !important;
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 3px var(--accent-tint) !important;
     }
     .stTextArea textarea::placeholder {
         color: #9ca3af !important;
@@ -288,19 +280,16 @@ st.markdown("""
         background: #ffffff;
         border: 1px solid #e5e7eb;
         padding: 1.2rem 1.5rem;
-        border-radius: 12px;
+        border-radius: 4px;
         margin-bottom: 0.8rem;
         display: flex;
         align-items: center;
         gap: 1.2rem;
-        transition: all 0.25s ease;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        transition: border-color 0.15s ease;
     }
 
     .standard-card:hover {
-        transform: translateY(-2px);
-        border-color: #d1d5db;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+        border-color: var(--accent);
     }
 
     .rank-badge {
@@ -311,12 +300,12 @@ st.markdown("""
     }
 
     .top-match-card {
-        border-left: 4px solid #d1d5db !important;
-        background: #f9fafb !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border-left: 4px solid var(--accent) !important;
+        background: var(--accent-tint) !important;
     }
 
     .standard-code {
+        font-family: 'Consolas', 'Courier New', monospace;
         font-size: 1.15rem;
         font-weight: 700;
         color: #1f2937;
@@ -325,14 +314,13 @@ st.markdown("""
     }
 
     .top-match-tag {
-        background: #e5e7eb;
-        color: #374151;
+        background: var(--accent);
+        color: #ffffff;
         font-size: 0.7rem;
         font-weight: 700;
         padding: 0.25rem 0.7rem;
-        border-radius: 20px;
+        border-radius: 4px;
         text-transform: uppercase;
-        border: 1px solid #d1d5db;
     }
 
     /* Rationale block */
@@ -340,10 +328,9 @@ st.markdown("""
         margin-top: 2rem;
         background: #ffffff;
         border: 1px solid #e5e7eb;
-        border-left: 4px solid #d1d5db;
+        border-left: 4px solid var(--accent);
         padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border-radius: 4px;
     }
 
     .rationale-title {
@@ -421,11 +408,21 @@ top_k = 5
 
 samples = [
     "33 Grade OPC cement",
-    "Hollow Concrete Blocks",
     "Portland Pozzolana Cement",
-    "White Portland Cement",
-    "Reinforced Concrete aggregates"
+    "Hollow Concrete Blocks",
+    "Ready mix concrete for RCC structures",
+    "Coarse aggregates for structural concrete",
+    "Common burnt clay building bricks",
+    "Mild steel bars for reinforcement",
+    "Toughened safety glass for windows",
+    "Preservative treated timber for door frames",
+    "Synthetic enamel paint for structural steel",
+    "PVC pipes for cold water supply",
+    "Bitumen felt for roof waterproofing",
+    "Ceramic glazed tiles for flooring",
+    "Rock wool thermal insulation for roofs",
 ]
+SAMPLES_PER_ROW = 5
 
 # ── Main content ──────────────────────────────────────────────────────────────
 st.markdown('<div class="breadcrumbs">Home &gt; Standards Search &gt; <span class="current">Recommend Standards</span></div>', unsafe_allow_html=True)
@@ -458,14 +455,16 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Sample queries inline
+# Sample queries inline, wrapped across rows
 st.markdown('<div class="sample-label">Try a sample query:</div>', unsafe_allow_html=True)
-cols = st.columns(len(samples))
-for i, sample in enumerate(samples):
-    with cols[i]:
-        if st.button(sample, key=f"sample_{sample}", use_container_width=True):
-            st.session_state["query_input"] = sample
-            st.rerun()
+for row_start in range(0, len(samples), SAMPLES_PER_ROW):
+    row_samples = samples[row_start:row_start + SAMPLES_PER_ROW]
+    cols = st.columns(SAMPLES_PER_ROW)
+    for i, sample in enumerate(row_samples):
+        with cols[i]:
+            if st.button(sample, key=f"sample_{sample}", use_container_width=True):
+                st.session_state["query_input"] = sample
+                st.rerun()
 
 # Search Input Section
 st.write("**DESCRIBE YOUR PRODUCT, MATERIAL, OR PROCESS**")
