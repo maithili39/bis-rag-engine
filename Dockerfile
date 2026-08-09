@@ -18,11 +18,12 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 # Copy source code
 COPY src/ ./src/
 COPY api.py build_vectorstore.py inference.py eval_script.py ./
+COPY known_codes.json ./
 
-# These are mounted as volumes at runtime - not baked into image
-# /app/data/dataset.pdf   <- you provide
-# /app/chromadb/          <- built by build_vectorstore.py
-# /app/known_codes.json   <- built by build_vectorstore.py
+# Copy dataset PDF and build the vectorstore at image build time
+# This makes the container fully self-contained — no volume mounts needed at runtime.
+COPY data/dataset.pdf ./data/dataset.pdf
+RUN python build_vectorstore.py && rm -f ./data/dataset.pdf
 
 EXPOSE 8000
 

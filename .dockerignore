@@ -1,0 +1,34 @@
+# Don't send these to Docker build context — they're built inside the image
+chromadb/
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.git/
+.github/
+tests/
+*.log
+outputs/
+results.json
+team_results.json
+
+# IDE / OS
+.vscode/
+.idea/
+.claude/
+.DS_Store
+Thumbs.db
+
+# Env files — use --env-file or env vars at runtime instead
+.env
+.env.local
+
+# data/dataset.pdf IS needed — do NOT ignore it here (it must reach COPY)
+# data/extended_test_set.json etc. are not needed in the image
+data/extended_test_set.json
+data/public_test_set.json
+data/public_test_results.json
+data/sp21_toc.json
