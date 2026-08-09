@@ -29,11 +29,12 @@ def main():
     print("BIS RAG Engine - Vectorstore Builder")
     print("=" * 60)
     
-    # Scan for PDF files in the data directory (Phase 6)
-    pdf_files = glob.glob(os.path.join(DATA_DIR, "*.pdf"))
+    # Scan for valid PDF files in the data directory
+    pdf_files = [p for p in glob.glob(os.path.join(DATA_DIR, "*.pdf")) if os.path.isfile(p) and os.path.getsize(p) > 100]
     if not pdf_files:
-        print(f"\nERROR: No PDF files found in data directory: {DATA_DIR}")
-        sys.exit(1)
+        print(f"\nWARNING: No non-empty PDF files found in data directory: {DATA_DIR}")
+        print("Skipping vectorstore generation. The container will start in degraded mode.")
+        sys.exit(0)
 
     print(f"\nFound {len(pdf_files)} PDF(s) to process:")
     for pdf in pdf_files:

@@ -45,7 +45,6 @@ data/raw/
 data/processed/
 embeddings/
 models/
-chromadb/
 *.npy
 *.pkl
 

@@ -20,10 +20,10 @@ COPY src/ ./src/
 COPY api.py build_vectorstore.py inference.py eval_script.py ./
 COPY known_codes.json ./
 
-# Copy dataset PDF and build the vectorstore at image build time
-# This makes the container fully self-contained — no volume mounts needed at runtime.
-COPY data/dataset.pdf ./data/dataset.pdf
-RUN python build_vectorstore.py && rm -f ./data/dataset.pdf
+# Copy data files and build the vectorstore at image build time
+# If dataset.pdf is present, vectorstore will be generated; otherwise build proceeds in degraded mode.
+COPY data/ ./data/
+RUN python build_vectorstore.py && rm -f ./data/*.pdf
 
 EXPOSE 8000
 
