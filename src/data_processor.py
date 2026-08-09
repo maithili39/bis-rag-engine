@@ -1,5 +1,6 @@
 """Data processing and chunking for BIS SP 21 standards documents."""
 
+import os
 import re
 import warnings
 from typing import Any, Dict, List, Optional, Tuple
@@ -336,18 +337,18 @@ Title: {std['title']}
         """
         if not known_toc:
             return 0.0
-            
+
         parsed = set(self._normalize_code(code) for code in self.all_standard_codes)
         expected = set(self._normalize_code(code) for code in known_toc)
-        
+
         found = parsed.intersection(expected)
         missing = expected - parsed
-        
+
         coverage = len(found) / len(expected)
         print(f"  Parsing Coverage: {coverage*100:.1f}% ({len(found)}/{len(expected)})")
         if missing:
             print(f"  Missing expected codes: {missing}")
-            
+
         return coverage
 
     def get_all_known_codes(self) -> set:
