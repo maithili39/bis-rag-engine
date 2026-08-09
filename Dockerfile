@@ -19,6 +19,7 @@ RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTr
 COPY src/ ./src/
 COPY api.py build_vectorstore.py inference.py eval_script.py ./
 COPY known_codes.json ./
+COPY chromadb/ ./chromadb/
 
 # Copy data files and build the vectorstore at image build time
 # If dataset.pdf is present, vectorstore will be generated; otherwise build proceeds in degraded mode.
