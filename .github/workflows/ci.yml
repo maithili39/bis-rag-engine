@@ -30,13 +30,12 @@ jobs:
         run: pytest tests/test_api.py -v --tb=short
 
       - name: Build Docker image
-        # dataset.pdf is gitignored so the vectorstore build step is skipped in CI.
-        # The image still builds correctly; the COPY fails gracefully because
-        # build_vectorstore.py checks for the PDF before processing.
-        # On real deploys, dataset.pdf IS present so the vectorstore is baked in.
+        # dataset.pdf is gitignored so build_vectorstore.py's own PDF build step
+        # is skipped in CI; chromadb/ is committed to the repo so a real
+        # vectorstore is baked into the image regardless.
         run: |
           touch data/dataset.pdf
-          docker build -t bis-rag-engine . || true
+          docker build -t bis-rag-engine .
 
       - name: Smoke-test /health
         run: |
