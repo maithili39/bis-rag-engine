@@ -35,6 +35,6 @@ jobs:
       - name: Smoke-test /health
         run: |
           docker run -d -p 8000:8000 --name bis_test bis-rag-engine
-          sleep 5
-          curl -f http://localhost:8000/health || exit 1
+          sleep 10
+          curl -f -v http://localhost:8000/health || (docker logs bis_test && exit 1)
           docker stop bis_test

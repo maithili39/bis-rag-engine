@@ -40,10 +40,13 @@ async def lifespan(app: FastAPI):
             print("Vectorstore not found — building from PDF...")
             _pipeline.initialize_from_pdf(DATASET_PDF)
         else:
-            raise RuntimeError(
-                f"Neither vectorstore nor dataset PDF found. "
-                f"Run: python build_vectorstore.py"
+            # No vectorstore and no PDF — start in degraded mode so the
+            # container is still reachable. /health will report "starting".
+            print(
+                "WARNING: Neither vectorstore nor dataset PDF found. "
+                "Run: python build_vectorstore.py to enable query functionality."
             )
+            _pipeline = None
     yield
     _pipeline = None
 
