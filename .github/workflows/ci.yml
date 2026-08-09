@@ -38,13 +38,22 @@ jobs:
           touch data/dataset.pdf
           docker build -t bis-rag-engine . || true
 
-      - name: Smoke-test /health (degraded mode — no PDF in CI)
+      - name: Smoke-test /health
         run: |
           docker run -d -p 8000:8000 --name bis_test bis-rag-engine
-          sleep 5
-          STATUS=$(curl -sf http://localhost:8000/health | python3 -c "import sys,json; print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "unreachable")
+          # The vectorstore + embedding model now load synchronously during
+          # FastAPI startup (chromadb/ is committed to the repo), so give the
+          # container real time to come up before probing /health.
+          STATUS="unreachable"
+          for i in $(seq 1 60); do
+            RESP=$(curl -sf http://localhost:8000/health 2>/dev/null)
+            if [ -n "$RESP" ]; then
+              STATUS=$(echo "$RESP" | python3 -c "import sys,json; print(json.load(sys.stdin)['status'])" 2>/dev/null || echo "unreachable")
+              [ "$STATUS" = "ok" ] || [ "$STATUS" = "starting" ] && break
+            fi
+            sleep 3
+          done
           echo "Health status: $STATUS"
           docker logs bis_test
           docker stop bis_test
-          # Accept "ok" or "starting" (starting = degraded mode, no PDF in CI)
           [ "$STATUS" = "ok" ] || [ "$STATUS" = "starting" ] || exit 1
