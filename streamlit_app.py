@@ -389,15 +389,22 @@ def get_pipeline():
     pipeline = BISRAGPipeline(persist_dir=CHROMA_PERSIST_DIR)
     if not pipeline.load_existing_vectorstore():
         if os.path.exists(DATASET_PDF):
-            with st.spinner("⏳ Building vectorstore from PDF (first time only)..."):
+            try:
+                print("Building vectorstore from PDF (first run, ~15-30s)...")
                 pipeline.initialize_from_pdf(DATASET_PDF)
-            st.success("✓ Vectorstore built successfully!")
+                print("✓ Vectorstore built successfully!")
+            except Exception as e:
+                print(f"Error building vectorstore: {e}")
+                return None
         else:
-            st.error("❌ Vectorstore not found and dataset PDF missing.")
+            print("⚠ Vectorstore not found and dataset PDF missing.")
+            return None
     return pipeline
 
 try:
     pipeline = get_pipeline()
+    if pipeline is None:
+        st.error("❌ Failed to initialize vectorstore. Please check logs.")
 except Exception as e:
     st.error(f"❌ Error initializing RAG pipeline: {e}")
     pipeline = None
