@@ -1,5 +1,5 @@
-# Don't send these to Docker build context — they're built inside the image
-chromadb/
+# chromadb/ is intentionally NOT ignored — it's a pre-built vectorstore
+# committed to the repo and copied into the image via COPY chromadb/.
 .venv/
 venv/
 ENV/
