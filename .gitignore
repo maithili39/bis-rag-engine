@@ -45,8 +45,6 @@ data/raw/
 data/processed/
 embeddings/
 models/
-*.npy
-*.pkl
 
 # Binary files (presentations, PDFs)
 *.pdf
