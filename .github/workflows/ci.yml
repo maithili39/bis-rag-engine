@@ -43,6 +43,7 @@ jobs:
           # The vectorstore + embedding model now load synchronously during
           # FastAPI startup (chromadb/ is committed to the repo), so give the
           # container real time to come up before probing /health.
+          set +e
           STATUS="unreachable"
           for i in $(seq 1 60); do
             RESP=$(curl -sf http://localhost:8000/health 2>/dev/null)
@@ -52,6 +53,7 @@ jobs:
             fi
             sleep 3
           done
+          set -e
           echo "Health status: $STATUS"
           docker logs bis_test
           docker stop bis_test
